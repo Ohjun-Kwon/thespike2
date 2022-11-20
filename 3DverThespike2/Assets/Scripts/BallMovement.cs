@@ -35,7 +35,7 @@ public class BallMovement : MonoBehaviour
     }
     public void ballReceive(int team) {
         
-        movePhys.setVectorByVspeedParabola(NET_X + team * (0.05f + UnityEngine.Random.Range(-5.0f,12.0f)),NET_Y,UnityEngine.Random.Range(1.2f,2.2f));
+        movePhys.setVectorByVspeedParabola(NET_X + team * (0.05f + UnityEngine.Random.Range(0.0f,9.0f)),NET_Y,UnityEngine.Random.Range(1.9f,3.2f));
         movePhys.setZDirection(Constants.CENTER);
         MainSetting.setCurrentSituation(SIT_RALLYPLAYING);
         movePhys.startParabola();
@@ -61,7 +61,7 @@ public class BallMovement : MonoBehaviour
     }
 
     public void ballToss(int team) {
-        if (UnityEngine.Random.Range(0,6) < 3){
+        if (UnityEngine.Random.Range(0,6) < 0){
             movePhys.setVectorByVspeedParabola(NET_X + team * (2.5f + UnityEngine.Random.Range(0.0f,2.0f)),NET_Y,2.35f);
             movePhys.setZDirection(Constants.CENTER);
             MainControl.setCurrentSituation(STRATEGY_OPEN);
@@ -83,10 +83,13 @@ public class BallMovement : MonoBehaviour
         Debug.Log("Hit Floor");
         movePhys.setVector(movePhys.getVerticalFlippedDirection(),movePhys.getSpeed()*0.8f);
         movePhys.startParabola();
+        MainControl.resetTouchCount();
     }
     public void ballHitNet() {
          movePhys.setVector(movePhys.getDirection()+180.0f,movePhys.getSpeed()*0.3f);
          movePhys.startParabola();
+        MainSetting.setCurrentBallType();
+        MainControl.commandPlayerMove();         
      }
     public void ballInCenter(float dir, float spd) {
             movePhys.setVector(dir,spd);

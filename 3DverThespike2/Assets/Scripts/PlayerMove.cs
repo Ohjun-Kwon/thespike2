@@ -70,7 +70,7 @@ public class PlayerMove : MonoBehaviour
         checkMoveDelay();
         if (isMove) {
             float speed = isSlow ? SLOW_SPEED : 1.0f; // Slow면 0.3배로 간다.
-            if (isMoveDelayFree()) 
+            if (isMoveDelayFree() || true) 
                 movePhys.moveLinear(movingDir , Status.getSpeed() * speed);
         }
         if (timeTrigger.getMainTimeFlow() >= jumpTime) { DoJump(jumpType); jumpTime = INF;}
@@ -79,9 +79,11 @@ public class PlayerMove : MonoBehaviour
             if ((playerSetting.getPlayerAction() == ACTION_SPIKEREADY) || (playerSetting.getPlayerAction() == ACTION_QUICKREADY)) DoSpike(); 
             else if (playerSetting.getPlayerAction() == ACTION_SPIKESWING) { 
                 playerSetting.setPlayerAction(ACTION_SPIKEDONE); 
-                GetComponent<Renderer>().material.SetColor("_Color", Color.white);
             }     
         }
+
+        if (playerSetting.getPlayerAction() == ACTION_QUICKREADY) GetComponent<Renderer>().material.SetColor("_Color", Color.black);
+        else    GetComponent<Renderer>().material.SetColor("_Color", Color.white);
     }
     
 
@@ -129,9 +131,9 @@ public class PlayerMove : MonoBehaviour
         movePhysics ballPhys = Ball.GetComponent<movePhysics>();        
         int team  = playerSet.getTeam();
 
-        float add_playerHeight = isTop ? playerPhys.getHeight() / 2 :  0.0f; // + ballPhys.getHeight() / 2 원래 볼 높이도 더해줘야 하는데 , 볼 높이까지는 안더해줌. 그 정도 여유는 줘야 함.
+        float add_playerHeight = (isTop ? playerPhys.getHeight() / 2 :  0.0f) + ballPhys.getHeight() / 2;
         float maxY = 0.0f; 
-        return ballPhys.getParabolaXbyMaxY(playerPhys.getLandBody_Y() + getMaxHeightBySpeed(playerSet.Status.getJump() * _jump_type) - 0.05f - DELAY + add_playerHeight, true , ref maxY);    
+        return ballPhys.getParabolaXbyMaxY(playerPhys.getLandBody_Y() + getMaxHeightBySpeed(playerSet.Status.getJump() * _jump_type) - DELAY + add_playerHeight, true , ref maxY);    
     }
 
 
@@ -168,34 +170,33 @@ public class PlayerMove : MonoBehaviour
         }
     }
     public void DoSpike() {
+        Debug.Log("Spike!");
         float swing_time = 1.0f; // 스윙 속도는 사람마다 다를 예정.
         playerSetting.setPlayerAction(ACTION_SPIKESWING); // 스파이크 스윙을 합니다.
-        spikeTime = timeTrigger.getMainTimeFlow() + swing_time * 2;
-        GetComponent<Renderer>().material.SetColor("_Color", Color.black);
+        spikeTime = timeTrigger.getMainTimeFlow() + swing_time + 0.1f;
     }
-    void OnTriggerEnter(Collider other) {
+    void OnTriggerStay(Collider other) {
         if (other.tag == "Ball") {
-            if (gameObject == mainControl.followingPlayer) {
-                mainControl.setLastTouch(gameObject);
-
                 if (playerSetting.getPlayerAction() == ACTION_RECEIVE) { 
-                    mainControl.Ball.GetComponent<BallMovement>().ballReceive(playerSetting.getTeam());
                     playerSetting.setPlayerAction(ACTION_RECEIVEDONE);
+                    mainControl.Ball.GetComponent<BallMovement>().ballReceive(playerSetting.getTeam());
+                    mainControl.setLastTouch(gameObject);
+                    setMoveDelay(10.0f);
                 }
                 else if (playerSetting.getPlayerAction() == ACTION_TOSS|| playerSetting.getPlayerAction() == ACTION_JUMPTOSS) { 
-                    mainControl.Ball.GetComponent<BallMovement>().ballToss(playerSetting.getTeam());
                     playerSetting.setPlayerAction(ACTION_TOSSDONE);                    
+                    mainControl.Ball.GetComponent<BallMovement>().ballToss(playerSetting.getTeam());
+                    mainControl.setLastTouch(gameObject);
+                    setMoveDelay(10.0f);
                 }
-                else if (playerSetting.getPlayerAction() == ACTION_SPIKESWING || playerSetting.getPlayerAction() == ACTION_SPIKEREADY || playerSetting.getPlayerAction() == ACTION_QUICKREADY){
-                    mainControl.Ball.GetComponent<BallMovement>().ballSpike(playerSetting.getTeam());
-                    playerSetting.setPlayerAction(ACTION_SPIKEDONE);                    
-                }
-                else {
-                    Debug.Log($"what? {playerSetting.getPlayerAction()}");
+                //GetComponent<Renderer>().material.SetColor("_Color", Color.yellow);
+        }
 
-                }
-                setMoveDelay(10.0f);
-            }
+        if (playerSetting.getPlayerAction() == ACTION_SPIKESWING){
+                    playerSetting.setPlayerAction(ACTION_SPIKEDONE);   
+                    mainControl.Ball.GetComponent<BallMovement>().ballSpike(playerSetting.getTeam());
+                    mainControl.setLastTouch(gameObject);
+                    setMoveDelay(10.0f);
         }
     }
 

@@ -151,7 +151,7 @@ public class PlayerAI : MonoBehaviour
         int ball_type = MainSetting.getCurrentBallType(team);
         
         jump_type = (isLowBall) ? JUMP_NO : JUMP_TOSS; 
-        jump_delay = 0.0f;//UnityEngine.Random.Range(0.0f,1.3f);
+        jump_delay = UnityEngine.Random.Range(0.0f,0.8f);
     }
     public void DoReceive() {
         Debug.Log("Receive");

@@ -19,7 +19,7 @@ public class PlayerSetting : MonoBehaviour
     private BoxCollider2D boxCollider;      
     public playerStats Status;
     private Vector3 target;
-    private int playerAction;
+    [SerializeField] public int playerAction;
     public bool control = false;
 
     
