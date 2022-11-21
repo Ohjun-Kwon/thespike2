@@ -44,9 +44,9 @@ public static class Constants
     public const int CENTER = 1;
     public const int RIGHT = 2;
 
-    public const float Z_RIGHT = -1.2f;
+    public const float Z_RIGHT = -0.3f;
     public const float Z_CENTER = 0.0f;
-    public const float Z_LEFT = 1.2f;
+    public const float Z_LEFT = 0.3f;
 
 
     public const float INF = 999999f;

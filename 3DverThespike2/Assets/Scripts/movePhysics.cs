@@ -33,8 +33,8 @@ public class movePhysics : MonoBehaviour
     public Vector3 startPos;
     public Vector3 endPos;
 
-    private float currentTime;
-    public float flightTime;
+     [SerializeField]private float currentTime;
+     [SerializeField]public float flightTime;
     private float flightMaxHeight;
     private float Height;
 
@@ -52,7 +52,7 @@ public class movePhysics : MonoBehaviour
     }
     public void initPhysics(){
         setLandY(); // 본인의 캐릭터 크기에 맞게 가장 낮은 위치의 좌표.
-        setVector(90.001f,0.0f);
+        setVector(90.0f,0.001f);
         depthSpeed = 0.0f;
         startParabola();       
     }
@@ -130,13 +130,16 @@ public class movePhysics : MonoBehaviour
         return;
     }
     public float getVerticalFlippedDirection(){
-         if (horizontalSpeed == 0.0f) return 0.0f;
+        //verticalSpeed는 시작 속도이다. 그러므로 이렇게 하면 안돼.
+         if (horizontalSpeed == 0.0f) return 90.0f;
+         Debug.Log($"direction : {Mathf.Atan(-verticalSpeed / horizontalSpeed) * (180 / Constants.Pi)}");
          return Mathf.Atan(-verticalSpeed / horizontalSpeed) * (180 / Constants.Pi);
     } 
     public float getDirection(){
         return direction;
     }
     public float getSpeed(){
+        //verticalSpeed는 시작 속도이다.
         if (horizontalSpeed == 0.0f) return 0.0f;
         var dir = Mathf.Atan(verticalSpeed / horizontalSpeed);
         return verticalSpeed / Mathf.Sin(dir);
@@ -244,7 +247,7 @@ public class movePhysics : MonoBehaviour
     /// </summary>
     /// <param name="x"></param>
     /// <returns></returns>
-    public float getFallingPlaceZbyX(float x){
+    public float getParabolaZbyX(float x){
         if (float.IsNaN(x)) return float.NaN;
         var dis = x - startPos.x;
         var totalDis = endPos.x - startPos.x;

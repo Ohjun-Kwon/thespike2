@@ -231,19 +231,24 @@ public class MainSetting : MonoBehaviour
 
         float setterY = setterPhys.getLandBody_Y() + setterPhys.getHeight()*0.5f + ballPhys.getHeight()*0.5f; // 세터 높이
         float setterJumpY = setterY + getMaxHeightBySpeed(setterSet.Status.getJump() * JUMP_TOSS); // 세터 점프 높이
+
         float ballXOnSetterY = ballPhys.getParabolaXbyY(setterY,true); // 세터 높이를 지나는 볼의 x좌표
         float ballXOnSetterJumpY = ballPhys.getParabolaXbyY(setterJumpY,true); // 세터 점프 높이를 지나는 볼의 x좌표
+
+        float ballZOnSetterY = ballPhys.getParabolaZbyX(ballXOnSetterY); // 세터 높이를 지나는 볼의 x좌표
+        float ballZOnSetterJumpY = ballPhys.getParabolaZbyX(ballXOnSetterJumpY); // 세터 점프 높이를 지나는 볼의 x좌표
+
         float ballMaxY = ballPhys.getFlightMaxY(ballPhys.verticalSpeed);
 
         if (ballMaxY >= setterJumpY)  // 세터 점프 토스 높이보다 볼이 높게 올라 갈 경우.
         {
             //IsArrivedInTime
-            if (setterMove.IsArrivedInTime( ballXOnSetterJumpY , ballPhys.getRemainTimeToParabolaX(ballXOnSetterJumpY) )) // 점프 한 높이까지 도달할 수 있는지
+            if (setterMove.IsArrivedInTime( ballXOnSetterJumpY , ballZOnSetterJumpY, ballPhys.getRemainTimeToParabolaX(ballXOnSetterJumpY) )) // 점프 한 높이까지 도달할 수 있는지
             {
                 setterMaxY = setterJumpY; // 도달할 수 있으니 문제 없음.
                 isLowBall = false;
             }
-            else if (setterMove.IsArrivedInTime( ballXOnSetterY , ballPhys.getRemainTimeToParabolaX(ballXOnSetterY) ) ) // 점프 안한 높이의 좌표까지는 도달할 수 있는 지. 
+            else if (setterMove.IsArrivedInTime( ballXOnSetterY , ballZOnSetterY, ballPhys.getRemainTimeToParabolaX(ballXOnSetterY) ) ) // 점프 안한 높이의 좌표까지는 도달할 수 있는 지. 
             {
                 setterMaxY = setterY;
                 isLowBall = true; 
@@ -255,7 +260,7 @@ public class MainSetting : MonoBehaviour
         else{
             isLowBall = true;
             setterMaxY = setterY;
-            if (!setterMove.IsArrivedInTime(ballXOnSetterY , ballPhys.getRemainTimeToParabolaX(ballXOnSetterY)))
+            if (!setterMove.IsArrivedInTime(ballXOnSetterY , ballZOnSetterY , ballPhys.getRemainTimeToParabolaX(ballXOnSetterY)))
                 return false; // 도달 불가.
         }
         return true;

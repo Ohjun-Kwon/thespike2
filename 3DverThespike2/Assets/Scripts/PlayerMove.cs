@@ -44,6 +44,7 @@ public class PlayerMove : MonoBehaviour
         boxCollider = GetComponent<BoxCollider>();
         gravityControl = GetComponent<ObjectGravity>();
         mainControl = SystemObject.GetComponent<MainControl>();
+        movePhys = GetComponent<movePhysics>();
         playerSetting = GetComponent<PlayerSetting>();
         timeTrigger = SystemObject.GetComponent<TimeTrigger>();
         //highXTransform = lineX.gameObject.GetComponent<Transform>();
@@ -70,7 +71,7 @@ public class PlayerMove : MonoBehaviour
         checkMoveDelay();
         if (isMove) {
             float speed = isSlow ? SLOW_SPEED : 1.0f; // Slow면 0.3배로 간다.
-            if (isMoveDelayFree() || true) 
+            if (isMoveDelayFree()) 
                 movePhys.moveLinear(movingDir , Status.getSpeed() * speed);
         }
         if (timeTrigger.getMainTimeFlow() >= jumpTime) { DoJump(jumpType); jumpTime = INF;}
@@ -82,6 +83,7 @@ public class PlayerMove : MonoBehaviour
             }     
         }
 
+        
         if (playerSetting.getPlayerAction() == ACTION_QUICKREADY) GetComponent<Renderer>().material.SetColor("_Color", Color.black);
         else    GetComponent<Renderer>().material.SetColor("_Color", Color.white);
     }
@@ -102,18 +104,32 @@ public class PlayerMove : MonoBehaviour
     }
 
 
-    /// <summary> 본인의 위치에서 주어진 x값까지 본인의 속도로, 주어진 시간 내로 도달 할 수 있는지 여부 반환 </summary>
-    /// <param name="x">도달할 거리</param>
+    /// <summary> 본인의 위치에서 주어진 x,z값까지 본인의 속도와 상태로, 주어진 시간 내로 도달 할 수 있는지 여부 반환 </summary>
+    /// <param name="x">도달할 x위치</param>
+    /// <param name="z">도달할 z위치</param>
     /// <param name="left_time">도달하는 데의 시간</param>
     /// <param name = "isSlow"> 느리게 가는지의 시간</param>
-    /// <param name = "slack_time"></param>
+    /// <param name = "slack_time">얼마나 더 여유 시간을 줄 지</param>
     /// <returns>도달 가능 여부</returns>
-    public bool IsArrivedInTime(float x , float left_time,bool isSlow = false,float slack_time = 0.0f){
+    public bool IsArrivedInTime(float x , float z,float left_time,bool isSlow = false,float slack_time = 0.0f){
+
         float slowSpeed = isSlow ? SLOW_SPEED : 1.0f;
-        if (Mathf.Abs(x - transform.position.x)/( Status.getSpeed() * slowSpeed) < (left_time - slack_time)) // 시간 내에 도달 할 수 있으면 true
+        float distance = Mathf.Max(Mathf.Abs(x - transform.position.x) , Mathf.Abs(z - transform.position.z));
+        float costTime = distance/( Status.getSpeed() * slowSpeed) + getMoveDelay(); // moveDelay도 추가해준다.
+
+        if (!movePhys.isParabolaEnd()) costTime = Mathf.Max(costTime , movePhys.getFlightTime() - movePhys.getCurrentTime()); // 점프 끝나는데 걸리는 시간 중 더 큰건? 
+        
+        
+        if (costTime < (left_time - slack_time)) // 시간 내에 도달 할 수 있으면 true
             return true;
         else
             return false;
+    }
+
+
+    public bool IsAvailableToQuick(float x ,float z, float left_time) {
+        
+        return (mainControl.getFollowingPlayer() != gameObject && IsArrivedInTime(x,z,left_time));
     }
     /// <summary>
     /// 해당 Player에게 Ball이 어디에 떨어질 지. 계산하는 함수. 
@@ -178,25 +194,27 @@ public class PlayerMove : MonoBehaviour
     void OnTriggerStay(Collider other) {
         if (other.tag == "Ball") {
                 if (playerSetting.getPlayerAction() == ACTION_RECEIVE) { 
+                    setMoveDelay(5.0f);
                     playerSetting.setPlayerAction(ACTION_RECEIVEDONE);
                     mainControl.Ball.GetComponent<BallMovement>().ballReceive(playerSetting.getTeam());
                     mainControl.setLastTouch(gameObject);
-                    setMoveDelay(10.0f);
+                    
                 }
                 else if (playerSetting.getPlayerAction() == ACTION_TOSS|| playerSetting.getPlayerAction() == ACTION_JUMPTOSS) { 
+                    setMoveDelay(5.0f);
                     playerSetting.setPlayerAction(ACTION_TOSSDONE);                    
                     mainControl.Ball.GetComponent<BallMovement>().ballToss(playerSetting.getTeam());
                     mainControl.setLastTouch(gameObject);
-                    setMoveDelay(10.0f);
+                    
                 }
                 //GetComponent<Renderer>().material.SetColor("_Color", Color.yellow);
         }
 
         if (playerSetting.getPlayerAction() == ACTION_SPIKESWING){
+                    setMoveDelay(5.0f);
                     playerSetting.setPlayerAction(ACTION_SPIKEDONE);   
                     mainControl.Ball.GetComponent<BallMovement>().ballSpike(playerSetting.getTeam());
                     mainControl.setLastTouch(gameObject);
-                    setMoveDelay(10.0f);
         }
     }
 
