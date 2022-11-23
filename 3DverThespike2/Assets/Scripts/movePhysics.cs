@@ -32,23 +32,22 @@ public class movePhysics : MonoBehaviour
     
     public Vector3 startPos;
     public Vector3 endPos;
-
-     [SerializeField]private float currentTime;
+    [SerializeField]public MainControl mainControl;
+     [SerializeField]private float mainFlow;
+     private float startTime;
      [SerializeField]public float flightTime;
     private float flightMaxHeight;
     private float Height;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-    }
-    // Update is called once per frame
-    void FixedUpdate()
+    /// <summary>
+    /// 해당 메서드는, TimeTrigger에서 실행한다.
+    /// </summary>
+    public void PhysicalFixedUpdate(float time) 
     {
         //timeFlow
-        currentTime += Constants.playSpeed;
+        mainFlow = time;
         //moveParabola
-        moveParabola(startPos , endPos , currentTime);    
+        moveParabola(startPos , endPos , getCurrentTime());    
     }
     public void initPhysics(){
         setLandY(); // 본인의 캐릭터 크기에 맞게 가장 낮은 위치의 좌표.
@@ -61,6 +60,9 @@ public class movePhysics : MonoBehaviour
         Height = boxCollider.bounds.size.y;
         landY = 0.0f + Height/2;
     }
+    public float getCurrentTime() {
+        return mainFlow - startTime;
+    }
     public void startParabola() {
         startPos = transform.position;
 
@@ -71,7 +73,7 @@ public class movePhysics : MonoBehaviour
         flightMaxHeight = getFlightMaxHeight(verticalSpeed);
         flightTime = getFlightTime();
         endPos = getParabolaEnd( flightTime );
-        resetCurrentTime();
+        resetStartTime();
 
         return;
     }
@@ -91,7 +93,7 @@ public class movePhysics : MonoBehaviour
     public void resetParabola() {
         startPos = transform.position;
         endPos = transform.position;
-        resetCurrentTime();
+        resetStartTime();
     }
     
     /// <summary>
@@ -107,8 +109,21 @@ public class movePhysics : MonoBehaviour
         var mid = Vector3.Lerp(start, end ,t);
         mid.y = start.y  + (mid.x - start.x)*(verticalSpeed / horizontalSpeed ) - 0.5f*gravityScale*Mathf.Pow( (mid.x - start.x) / horizontalSpeed, 2);
         transform.position = new Vector3(mid.x , mid.y , mid.z);            
-        
     }    
+    public Vector3 getCurrentPosition() {
+        return getPositionByTime( getCurrentTime());
+    }
+    public Vector3 getPositionByTime(float time) {
+
+        Vector3 start = startPos;
+        Vector3 end = endPos;
+
+        
+        var t = time / flightTime;
+        var mid = Vector3.Lerp(start, end ,t);
+        mid.y = start.y  + (mid.x - start.x)*(verticalSpeed / horizontalSpeed ) - 0.5f*gravityScale*Mathf.Pow( (mid.x - start.x) / horizontalSpeed, 2);
+        return new Vector3(mid.x , mid.y , mid.z);                    
+    }
     public Vector3 getParabolaByTime(Vector3 start ,Vector3 end , float time) {
         var t = time / flightTime;
         var mid = Vector3.Lerp(start, end ,t);
@@ -116,8 +131,8 @@ public class movePhysics : MonoBehaviour
         return new Vector3(mid.x , mid.y , mid.z);
     }    
 
-    public void resetCurrentTime(){
-        currentTime = 0f;
+    public void resetStartTime(){
+        startTime = mainFlow;
         return;
     }
     public void setVector(float Dir , float Spd) {
@@ -157,10 +172,11 @@ public class movePhysics : MonoBehaviour
         return;
     }
     public void setVectorByHighestY(float desX, float desY, float dY){
-        var highestY = transform.position.y + dY;
-        var h = highestY - transform.position.y;
+        Vector3 curPos = getCurrentPosition();
+        var highestY = curPos.y + dY;
+        var h = highestY - curPos.y;
         var H = highestY - desY;
-        var dx = desX - transform.position.x;
+        var dx = desX - curPos.x;
         float t = Mathf.Sqrt(2*H/gravityScale) + Mathf.Sqrt(2*h/gravityScale);
 
         if (highestY < desY) {
@@ -179,9 +195,10 @@ public class movePhysics : MonoBehaviour
     {
         //속공을 위해 필요한 스피드 계산
         // 주어진 시간 내로, 주어진 좌표값까지 이동시키는 속도를 지정.
-        var dx = desX - transform.position.x;
-        var dy =  desY - transform.position.y;
-        var dz = desZ - transform.position.z;
+        Vector3 curPos = getCurrentPosition();
+        var dx = desX - curPos.x;
+        var dy =  desY - curPos.y;
+        var dz = desZ - curPos.z;
 
         horizontalSpeed = dx/time;
         verticalSpeed = dy/time + gravityScale*time/2;
@@ -194,11 +211,13 @@ public class movePhysics : MonoBehaviour
     public void setVectorByVspeedParabola(float desX, float desY, float vspeed){ 
         // 포물선을 그리는 궤도로 목표 좌표까지 이동시키는 속도.
         // 여기서 포물선을 위한 최고점은, 현재 기준의 좌표 y값에, 주어진 vspeed 속도만큼 더 올라간 후의 최대 높이이다.
-        var highestY = transform.position.y + Mathf.Pow(vspeed , 2) / (2 * gravityScale);
 
-        var h = highestY - transform.position.y;
+        Vector3 curPos = getCurrentPosition();
+        var highestY = curPos.y + Mathf.Pow(vspeed , 2) / (2 * gravityScale);
+
+        var h = highestY - curPos.y;
         var H = highestY - desY;
-        var dx = desX - transform.position.x;
+        var dx = desX - curPos.x;
 
         if (highestY < desY) {
             // 최대 높이까지 올라갔음에도, 목표 y값보다 작아질 경우, 계산이 불가하다.
@@ -216,8 +235,9 @@ public class movePhysics : MonoBehaviour
     public void setVectorByVspeedSpike(float desX, float desY , float vspeed){ 
         // 포물선을 안그리고 바로 내려 찍는 궤도
         var verticalSpeed = -vspeed;
-        var distance =  desX - transform.position.x;
-        var h = transform.position.y - desY;
+        Vector3 curPos = getCurrentPosition();
+        var distance =  desX - curPos.x;
+        var h = curPos.y - desY;
 
         var t = (-vspeed  + Mathf.Sqrt(Mathf.Pow(vspeed , 2) + 2 * h * gravityScale)) / gravityScale;
         horizontalSpeed = distance / t;
@@ -238,9 +258,6 @@ public class movePhysics : MonoBehaviour
     public float getZ(){
         return transform.position.z;
     }    
-    public float getCurrentTime(){
-        return currentTime;
-    }
     /// <summary>
     /// 해당 포물선에서 x값일 때의 z값을 반환하는 함수.
     /// x값이 NaN일 경우 , NaN 반환
@@ -292,7 +309,9 @@ public class movePhysics : MonoBehaviour
     }
     public float getRemainTimeToParabolaX(float x) {
         if (float.IsNaN(x)) return INF;
-        var dis = x - transform.position.x;
+
+        Vector3 curPos = getCurrentPosition();
+        var dis = x - curPos.x;
         var spd = horizontalSpeed;
 
         if (spd == 0.0f) {
@@ -303,7 +322,8 @@ public class movePhysics : MonoBehaviour
     }    
     public float getRemainTimeToParabolaZ(float z) {
         if (float.IsNaN(z)) return INF;
-        var dis = z - transform.position.z;
+        Vector3 curPos = getCurrentPosition();
+        var dis = z - curPos.z;
         var spd = depthSpeed;
 
         if (spd == 0.0f) {
@@ -391,7 +411,7 @@ public class movePhysics : MonoBehaviour
         float disx = x - startPos.x;
         float disy = y - startPos.y;
         float disz = z - startPos.z;
-        currentTime = flightTime;
+        startTime = mainFlow - flightTime;
         startPos.x += disx;
         startPos.y += disy;
         startPos.z += disz;
@@ -399,7 +419,20 @@ public class movePhysics : MonoBehaviour
         endPos.y   += disy;
         endPos.z   += disz;
     }
+    public void changePositionByTime(float time) {
+        moveParabola(startPos,endPos,time-startTime);
+    }
+    public void changePositionX(float x) {
+        float disx = x - startPos.x;
+        startPos.x += disx;
+        endPos.x += disx;
+    }
+    public void changePositionZ(float z) {
+        float disz = z - startPos.z;
+        startPos.z += disz;
+        endPos.z += disz;
+    }
     public bool isParabolaEnd(){
-        return (currentTime >= flightTime );
+        return ( getCurrentTime() >= flightTime );
     }    
 }

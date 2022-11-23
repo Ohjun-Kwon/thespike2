@@ -165,6 +165,8 @@ MonoBehaviour:
   speed: 0
   startPos: {x: 0, y: 0, z: 0}
   endPos: {x: 0, y: 0, z: 0}
+  mainControl: {fileID: 0}
+  mainFlow: 0
   flightTime: 0
 --- !u!114 &107539772
 MonoBehaviour:
@@ -183,10 +185,11 @@ MonoBehaviour:
   isSlow: 0
   landY: 0
   Height: 0
-  spikeTime: 0
+  actionTime: 0
   score: 0
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
+  goal: {x: 0, y: 0, z: 0}
   movingSpeed: 0
 --- !u!114 &107539773
 MonoBehaviour:
@@ -442,6 +445,8 @@ MonoBehaviour:
   speed: 0
   startPos: {x: 0, y: 0, z: 0}
   endPos: {x: 0, y: 0, z: 0}
+  mainControl: {fileID: 0}
+  mainFlow: 0
   flightTime: 0
 --- !u!114 &405833250
 MonoBehaviour:
@@ -460,10 +465,11 @@ MonoBehaviour:
   isSlow: 0
   landY: 0
   Height: 0
-  spikeTime: 0
+  actionTime: 0
   score: 0
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
+  goal: {x: 0, y: 0, z: 0}
   movingSpeed: 0
 --- !u!114 &405833251
 MonoBehaviour:
@@ -723,7 +729,7 @@ GameObject:
   - component: {fileID: 522494169}
   m_Layer: 0
   m_Name: System
-  m_TagString: Untagged
+  m_TagString: System
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -766,8 +772,7 @@ MonoBehaviour:
   - {fileID: 961127454}
   Ball: {fileID: 1982906615}
   DELAY: 0
-  goalX: 0
-  goalZ: 0
+  goal: {x: 0, y: 0, z: 0}
   goalBall: {fileID: 1237539286}
   followingPlayer: {fileID: 1699464256}
   nowServePlayer: {fileID: 0}
@@ -1172,6 +1177,8 @@ MonoBehaviour:
   speed: 0
   startPos: {x: 0, y: 0, z: 0}
   endPos: {x: 0, y: 0, z: 0}
+  mainControl: {fileID: 0}
+  mainFlow: 0
   flightTime: 0
 --- !u!114 &961127456
 MonoBehaviour:
@@ -1190,10 +1197,11 @@ MonoBehaviour:
   isSlow: 0
   landY: 0
   Height: 0
-  spikeTime: 0
+  actionTime: 0
   score: 0
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
+  goal: {x: 0, y: 0, z: 0}
   movingSpeed: 0
 --- !u!114 &961127457
 MonoBehaviour:
@@ -1430,6 +1438,8 @@ MonoBehaviour:
   speed: 0
   startPos: {x: 0, y: 0, z: 0}
   endPos: {x: 0, y: 0, z: 0}
+  mainControl: {fileID: 0}
+  mainFlow: 0
   flightTime: 0
 --- !u!114 &1043825058
 MonoBehaviour:
@@ -1448,10 +1458,11 @@ MonoBehaviour:
   isSlow: 0
   landY: 0
   Height: 0
-  spikeTime: 0
+  actionTime: 0
   score: 0
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
+  goal: {x: 0, y: 0, z: 0}
   movingSpeed: 0
 --- !u!114 &1043825059
 MonoBehaviour:
@@ -1997,10 +2008,11 @@ MonoBehaviour:
   isSlow: 0
   landY: 0
   Height: 0
-  spikeTime: 0
+  actionTime: 0
   score: 0
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
+  goal: {x: 0, y: 0, z: 0}
   movingSpeed: 0
 --- !u!114 &1699464263
 MonoBehaviour:
@@ -2021,6 +2033,8 @@ MonoBehaviour:
   speed: 0
   startPos: {x: 0, y: 0, z: 0}
   endPos: {x: 0, y: 0, z: 0}
+  mainControl: {fileID: 0}
+  mainFlow: 0
   flightTime: 0
 --- !u!114 &1699464264
 MonoBehaviour:
@@ -2077,6 +2091,8 @@ MonoBehaviour:
   speed: 0
   startPos: {x: 0, y: 0, z: 0}
   endPos: {x: 0, y: 0, z: 0}
+  mainControl: {fileID: 0}
+  mainFlow: 0
   flightTime: 0
 --- !u!114 &1825636267
 MonoBehaviour:
@@ -2095,10 +2111,11 @@ MonoBehaviour:
   isSlow: 0
   landY: 0
   Height: 0
-  spikeTime: 0
+  actionTime: 0
   score: 0
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
+  goal: {x: 0, y: 0, z: 0}
   movingSpeed: 0
 --- !u!114 &1825636268
 MonoBehaviour:
@@ -2251,6 +2268,8 @@ MonoBehaviour:
   speed: 0
   startPos: {x: 0, y: 0, z: 0}
   endPos: {x: 0, y: 0, z: 0}
+  mainControl: {fileID: 0}
+  mainFlow: 0
   flightTime: 0
 --- !u!114 &1852328263
 MonoBehaviour:
@@ -2269,10 +2288,11 @@ MonoBehaviour:
   isSlow: 0
   landY: 0
   Height: 0
-  spikeTime: 0
+  actionTime: 0
   score: 0
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
+  goal: {x: 0, y: 0, z: 0}
   movingSpeed: 0
 --- !u!114 &1852328264
 MonoBehaviour:
@@ -2425,6 +2445,8 @@ MonoBehaviour:
   speed: 0
   startPos: {x: 0, y: 0, z: 0}
   endPos: {x: 0, y: 0, z: 0}
+  mainControl: {fileID: 0}
+  mainFlow: 0
   flightTime: 0
 --- !u!114 &1928712383
 MonoBehaviour:
@@ -2443,10 +2465,11 @@ MonoBehaviour:
   isSlow: 0
   landY: 0
   Height: 0
-  spikeTime: 0
+  actionTime: 0
   score: 0
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
+  goal: {x: 0, y: 0, z: 0}
   movingSpeed: 0
 --- !u!114 &1928712384
 MonoBehaviour:
@@ -2693,6 +2716,8 @@ MonoBehaviour:
   speed: 0
   startPos: {x: 0, y: 0, z: 0}
   endPos: {x: 0, y: 0, z: 0}
+  mainControl: {fileID: 0}
+  mainFlow: 0
   flightTime: 0
 --- !u!114 &1982906622
 MonoBehaviour:
@@ -2707,9 +2732,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SystemObject: {fileID: 522494165}
-  b_H: 0
   touchCountTEXT1: {fileID: 1459970839}
   touchCountTEXT2: {fileID: 473574575}
+  hitNetTime: 999999
+  hitFloorTime: 999999
+  timeTrigger: {fileID: 0}
 --- !u!65 &1982906623
 BoxCollider:
   m_ObjectHideFlags: 0

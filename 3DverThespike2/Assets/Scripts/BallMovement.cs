@@ -32,11 +32,7 @@ public class BallMovement : MonoBehaviour
     void Update() {   
         
     }
-    void FixedUpdate() {
-        // if (Mathf.Abs(transform.position.y - movePhys.getLandBody_Y()) <= 0.001f && Mathf.Abs(movePhys.verticalSpeed) > 0.08f)
-        // {
-        //     ballHitFloor();
-        // }
+    public void FixedUpdate() {
 
         if (timeTrigger.getMainTimeFlow() >= hitNetTime) 
         {
@@ -45,8 +41,8 @@ public class BallMovement : MonoBehaviour
         }
         if (timeTrigger.getMainTimeFlow() >= hitFloorTime) 
         {
-            Debug.Log($"hit Floor Time이 몇이길래..? {hitFloorTime}");
-            ballHitFloor();
+            //Debug.Log($"hit Floor Time이 몇이길래..? {hitFloorTime}");
+            //ballHitFloor();
             hitFloorTime = INF;
         }
 
@@ -58,9 +54,17 @@ public class BallMovement : MonoBehaviour
         hitFloorTime = movePhys.getFlightTime() + timeTrigger.getMainTimeFlow();
     }
     public void ballReceive(int team) {
+        Debug.Log("Do Receive");
+
+        if (MainControl.getTouchCount(team) == 0) {
+            movePhys.setVectorByVspeedParabola(NET_X + team * (0.05f + UnityEngine.Random.Range(-1.0f,5.0f)),NET_Y/2,UnityEngine.Random.Range(2.0f,3.2f));
+            movePhys.setZDirection(Constants.CENTER);
+        }
+        else {
+            movePhys.setVectorByVspeedParabola(NET_X + team * (0.05f + UnityEngine.Random.Range(-6.0f,-2.0f)),NET_Y/2,UnityEngine.Random.Range(2.0f,3.2f));
+            movePhys.setZDirection(Constants.CENTER);
+        }
         
-        movePhys.setVectorByVspeedParabola(NET_X + team * (0.05f + UnityEngine.Random.Range(-2.0f,12.0f)),NET_Y,UnityEngine.Random.Range(1.3f,3.2f));
-        movePhys.setZDirection(Constants.CENTER);
         MainSetting.setCurrentSituation(SIT_RALLYPLAYING);
         movePhys.startParabola();
         MainControl.addTouchCount(team);
@@ -75,7 +79,7 @@ public class BallMovement : MonoBehaviour
             movePhys.setZDirection(UnityEngine.Random.Range(0,3));
         }
         else {
-            movePhys.setVectorByVspeedParabola(NET_X + team * (- 2.05f - UnityEngine.Random.Range(0.0f,6.0f)),NET_Y,UnityEngine.Random.Range(0.09f,0.2f));
+            movePhys.setVectorByVspeedParabola(NET_X + team * (- 3.05f),NET_Y,UnityEngine.Random.Range(0.3f,0.8f));
             movePhys.setZDirection(UnityEngine.Random.Range(0,3));
         }
         movePhys.startParabola();
@@ -125,9 +129,9 @@ public class BallMovement : MonoBehaviour
         Debug.Log("Hit Floor");
         Debug.Log(movePhys.getVerticalFlippedDirection());
         Debug.Log(movePhys.getSpeed()*0.8f);
-        movePhys.setVector(movePhys.getVerticalFlippedDirection(),Mathf.Abs(movePhys.getSpeed()*0.9f));
-        movePhys.startParabola();
-        MainControl.resetTouchCount();
+        //movePhys.setVector(movePhys.getVerticalFlippedDirection(),Mathf.Abs(movePhys.getSpeed()*0.9f));
+        //movePhys.startParabola();
+        //MainControl.resetTouchCount();
         CheckHit();
     }
     public void ballHitNet() {

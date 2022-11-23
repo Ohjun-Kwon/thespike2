@@ -44,9 +44,9 @@ public static class Constants
     public const int CENTER = 1;
     public const int RIGHT = 2;
 
-    public const float Z_RIGHT = -0.3f;
+    public const float Z_RIGHT = -0.6f;
     public const float Z_CENTER = 0.0f;
-    public const float Z_LEFT = 0.3f;
+    public const float Z_LEFT = 0.6f;
 
 
     public const float INF = 999999f;
@@ -91,22 +91,25 @@ public static class Constants
     //PlayerAction의 종류를 나타내는 상수
 
     public const int ACTION_RECEIVE = 255;
-    public const int ACTION_RECEIVEDONE = 256;
-    public const int ACTION_SPIKEREADY = 257;
-    public const int ACTION_SPIKESWING = 258;
-    public const int ACTION_SPIKEDONE = 259;
-    public const int ACTION_BLOCK = 260;
-    public const int ACTION_TOSS = 261;
-    public const int ACTION_JUMPTOSS = 262;
-    public const int ACTION_TOSSDONE = 263;
-    public const int ACTION_QUICKREADY = 264;
-    public const int ACTION_SERVEWALK = 265;
-    public const int ACTION_SERVEREADY = 266;
-    public const int ACTION_SERVETOSS = 267;
-    public const int ACTION_SERVEDONE = 268;
+    public const int ACTION_RECEIVEREADY = 256;
+    public const int ACTION_RECEIVEDONE = 257;
+    public const int ACTION_SPIKEREADY = 258;
+    public const int ACTION_SPIKESWING = 259;
+    public const int ACTION_SPIKEDONE = 260;
+    public const int ACTION_BLOCK = 261;
+    public const int ACTION_TOSSREADY = 262;
+    public const int ACTION_JUMPTOSSREADY = 263;
+    public const int ACTION_TOSS = 264;
+    public const int ACTION_JUMPTOSS = 265;
+    public const int ACTION_TOSSDONE = 266;
+    public const int ACTION_QUICKREADY = 267;
+    public const int ACTION_SERVEWALK = 268;
+    public const int ACTION_SERVEREADY = 269;
+    public const int ACTION_SERVETOSS = 270;
+    public const int ACTION_SERVEDONE = 271;
     
 
-    public static float playSpeed = 0.08f;
+    public static float playSpeed = 0.04f;
     public const float NOVALUE = -90158115.4142f;
 
 

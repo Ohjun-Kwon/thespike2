@@ -22,10 +22,7 @@ public class MainControl : MonoBehaviour
 
     [SerializeField] public float  DELAY = 0.0f;
 
-    private Transform playerTransform;
-    [SerializeField]public float goalX;
-    [SerializeField]public float goalZ;
-
+     [SerializeField]public Vector3 goal;
     [SerializeField]public GameObject goalBall;
 
 
@@ -65,31 +62,29 @@ public class MainControl : MonoBehaviour
              Players[0+ j*4].GetComponent<PlayerSetting>().setPosition(Constants.LIBERO);
              Players[0 + j*4].GetComponent<PlayerSetting>().setRotation(0);
              //power , jump , speed , defense
-             Players[0+ j*4].GetComponent<PlayerSetting>().playerCreate(3.0f,1.6f,1.3f,3.0f);        
+             Players[0+ j*4].GetComponent<PlayerSetting>().playerCreate(3.0f,1.6f,2.7f,3.0f);        
              Players[0+ j*4].GetComponent<PlayerMove>().setStatus();    
              
              Players[1+ j*4].GetComponent<PlayerSetting>().setPosition(Constants.SETTER);
              Players[1 + j*4].GetComponent<PlayerSetting>().setRotation(1);
-             Players[1+ j*4].GetComponent<PlayerSetting>().playerCreate(2.0f,1.5f,1.2f,1.0f);
+             Players[1+ j*4].GetComponent<PlayerSetting>().playerCreate(2.0f,1.5f,2.2f,1.0f);
              Players[1+ j*4].GetComponent<PlayerMove>().setStatus();
              
              Players[2+ j*4].GetComponent<PlayerSetting>().setPosition(Constants.BLOCKER);
              Players[2 +j*4].GetComponent<PlayerSetting>().setRotation(2);
-             Players[2+ j*4].GetComponent<PlayerSetting>().playerCreate(4.0f,1.6f,1.4f,1.0f);        
+             Players[2+ j*4].GetComponent<PlayerSetting>().playerCreate(4.0f,1.6f,2.4f,1.0f);        
              Players[2+ j*4].GetComponent<PlayerMove>().setStatus();        
              
              
              Players[3 + j*4].GetComponent<PlayerSetting>().setPosition(Constants.SPIKER);
              Players[3 + j*4].GetComponent<PlayerSetting>().setRotation(3);
-             Players[3+ j*4].GetComponent<PlayerSetting>().playerCreate(1.0f,1.8f,1.5f,1.0f);
+             Players[3+ j*4].GetComponent<PlayerSetting>().playerCreate(1.0f,1.8f,2.5f,1.0f);
              Players[3+ j*4].GetComponent<PlayerMove>().setStatus();
 
              nowServePlayer = Players[1];
         }
         MainSetting = GetComponent<MainSetting>();
         TimeTrigger = GetComponent<TimeTrigger>();
-        //int x = 20;
-        //TimeTrigger.addTrigger(10f,()=> {Debug.Log($"{x}");});
         
         //TimeTrigger.addTrigger(5f,()=> {x += 5;});
     }
@@ -124,10 +119,10 @@ public class MainControl : MonoBehaviour
         else if (Input.GetKey(KeyCode.RightArrow)) { controlDirection = INF;  } //PlayerMoveStart(Vector3.right , controlId,true);  
         
         if (Input.GetKey(KeyCode.Space)) { controlId.GetComponent<PlayerMove>().DoJump(JUMP_SPIKE); } 
-
+        
        // PlayerMoveToX(FloorX, Players[0]);
         //if (touchCount <= 2) {
-        
+
 
         if (MainSetting.getCurrentSituation() == SIT_SERVERGO)
             serveControl(nowServePlayer);
@@ -135,7 +130,8 @@ public class MainControl : MonoBehaviour
         for (int i = 0 ; i < playerNumber; i ++) 
         {
             movePhysics ballPhys = Ball.GetComponent<movePhysics>(); 
-
+            float goalX = goal.x;
+            float goalZ = goal.z;
             if (nowServePlayer == Players[i]) continue; // 현재 서브하는 선수는 자체적으로 움직임.
 
             if (followingPlayer == Players[i]) {  // 현재 볼을 따라가는 선수. 
@@ -162,7 +158,7 @@ public class MainControl : MonoBehaviour
 
                 PlayerMoveTo(xPos,zPos, Players[i],isSlow);
             }
-        }           
+        }         
     }
 
 /// <summary>
@@ -223,7 +219,8 @@ public class MainControl : MonoBehaviour
 
     private bool PlayerMoveTo( float x ,float z , GameObject controlPlayer, bool isSlow = false) {        
         //플레이어를 특정 좌표로 움직이게 하는 함수.
-        playerTransform = controlPlayer.GetComponent<Transform>();
+        Transform playerTransform = controlPlayer.GetComponent<Transform>();
+
         Vector3 Direction = new Vector3(0f,0f,0f);
         bool    isthereMove1 = false;
         bool    isthereMove2 = false;
@@ -231,7 +228,8 @@ public class MainControl : MonoBehaviour
         isthereMove1 = PlayerMoveToX( x , controlPlayer , ref Direction,isSlow);
         isthereMove2 = PlayerMoveToZ( z , controlPlayer ,ref Direction,isSlow);
 
-
+        controlPlayer.GetComponent<PlayerMove>().goal = new Vector3(x,0.0f,z);
+        
         if (!isthereMove1 && !isthereMove2) {
             controlPlayer.GetComponent<PlayerMove>().isMove = false;
             return false;
@@ -244,7 +242,8 @@ public class MainControl : MonoBehaviour
     }
     private bool PlayerMoveToX(float x , GameObject controlPlayer,ref Vector3 Direction, bool isSlow)
     {
-        playerTransform = controlPlayer.GetComponent<Transform>();
+        Transform playerTransform = controlPlayer.GetComponent<Transform>();
+        movePhysics playerPhys = controlPlayer.GetComponent<movePhysics>();
         bool isthereMove = false;
         float slowSpeed = isSlow ? SLOW_SPEED : 1;
         if (float.IsNaN(x)) {
@@ -257,7 +256,7 @@ public class MainControl : MonoBehaviour
         
         if ( Mathf.Abs(x - playerTransform.position.x) <= controlPlayer.GetComponent<PlayerSetting>().Status.getSpeed()*slowSpeed *Constants.playSpeed *1.05f ) 
         {   
-            playerTransform.position = new Vector3(x, playerTransform.position.y, playerTransform.position.z);
+            playerPhys.changePositionX(x);
         }
         else{
             if (x > playerTransform.position.x) Direction += new Vector3(1.0f,0.0f,0.0f);
@@ -269,13 +268,14 @@ public class MainControl : MonoBehaviour
     private bool PlayerMoveToZ(float z , GameObject controlPlayer,ref Vector3 Direction , bool isSlow){
         
         bool isthereMove = false;
-        playerTransform = controlPlayer.GetComponent<Transform>();
+        Transform playerTransform = controlPlayer.GetComponent<Transform>();
+        movePhysics playerPhys = controlPlayer.GetComponent<movePhysics>();
         float slowSpeed = isSlow ? SLOW_SPEED : 1;
         if (float.IsNaN(z)) {
              return false; // x가 NaN값일 경우.
         }
         if ( Mathf.Abs(z - playerTransform.position.z) <= controlPlayer.GetComponent<PlayerSetting>().Status.getSpeed()* Constants.playSpeed*slowSpeed*1.05f ){
-            playerTransform.position = new Vector3(playerTransform.position.x, playerTransform.position.y, z);
+            playerPhys.changePositionZ(z);
         }
         else {
             if (z > playerTransform.position.z) Direction += new Vector3(0.0f,0.0f,1.0f);
@@ -301,7 +301,8 @@ public class MainControl : MonoBehaviour
         PlayerSetting playerSet = followingPlayer.GetComponent<PlayerSetting>();
         PlayerMove playerMove = followingPlayer.GetComponent<PlayerMove>();
         PlayerAI playerAI = followingPlayer.GetComponent<PlayerAI>();
-
+        playerStats playerStat = playerSet.Status;
+        
         float BallType = MainSetting.getCurrentBallType(TEAM_LEFT);
         int team = playerSet.getTeam();
         bool isLowBall = ( BallType == BALL_RECEIVE_GOOD_LOW || BallType == BALL_RECEIVE_BAD_LOW || BallType == BALL_RECEIVE_SHORT_LOW );
@@ -311,29 +312,35 @@ public class MainControl : MonoBehaviour
         if (getTouchCount(team) == 0) {
             x = playerMove.getFallingPlaceXbyPlayer(JUMP_NO,false,0.0f); // 점프 안하고 리시브.                 
             y = playerPhys.getLandBody_Y();        
-            playerSet.setPlayerAction(ACTION_RECEIVE);
-
             z = ballPhys.getParabolaZbyX(x);
-            goalX = x;
-            goalZ = z;      
-            goalBall.transform.position = new Vector3 (goalX,y,goalZ);       
+            goal = new Vector3(x,y,z);                     
+            goalBall.transform.position = new Vector3 (x,y,z);       
+
+            float costTime = ballPhys.getRemainTimeToParabolaX(x) - playerStat.getReceiveTime();
+
+            
+            if (playerMove.IsArrivedInTime( x , z , costTime)) { // 리시브는 점프를 안해요.
+                playerSet.setPlayerAction(ACTION_RECEIVEREADY);
+                playerMove.setActionTime(ballPhys.getRemainTimeToParabolaX(x)-playerStat.getReceiveTime());       
+            }
         }
         else if (getTouchCount(team) == 1) {
             float jump_type = 0.0f,delay = 0.0f;
 
             playerAI.getJumpDataOfSecondBall(ref jump_type,ref delay,isLowBall);
-            
-            if (jump_type == JUMP_TOSS) playerSet.setPlayerAction(ACTION_JUMPTOSS); // 점프토스인지 아닌지 구별!
-            else playerSet.setPlayerAction(ACTION_TOSS);
 
             x = playerMove.getFallingPlaceXbyPlayer(jump_type,true,delay);                 
-            y = playerPhys.getLandHead_Y() + ballPhys.getHeight() / 2 ;    
-
+            y = playerPhys.getLandHead_Y()+ getMaxHeightBySpeed(playerSet.Status.getJump() * jump_type) - delay;    
             var pTime = getFlightTimeBySpeed(playerSet.Status.getJump() * jump_type) + getTimeByHeight(delay);
-            playerMove.setJumpTime(ballPhys.getRemainTimeToParabolaX(x) - pTime , jump_type);                        
-            
-            y = y + getMaxHeightBySpeed(playerSet.Status.getJump() * jump_type) - delay;
+            playerMove.setJumpTime(ballPhys.getRemainTimeToParabolaX(x) - pTime , jump_type);     
+            float costTime = ballPhys.getRemainTimeToParabolaX(x);
+            z = ballPhys.getParabolaZbyX(x);
 
+            if (playerMove.IsArrivedInTime( x , z , costTime)) { //세터는 점프토스가 안되면 알아서 안한다.
+                if (jump_type == JUMP_TOSS) playerSet.setPlayerAction(ACTION_JUMPTOSSREADY); // 점프토스인지 아닌지 구별!
+                else playerSet.setPlayerAction(ACTION_TOSSREADY);             
+                playerMove.setActionTime(ballPhys.getRemainTimeToParabolaX(x)- playerStat.getTossTime());     
+            }
 
             // 속공 점프
 
@@ -341,71 +348,85 @@ public class MainControl : MonoBehaviour
             movePhysics MBPhys = Players[MB_ID].GetComponent<movePhysics>();   
             PlayerSetting MBSet = Players[MB_ID].GetComponent<PlayerSetting>();
             PlayerMove MBMove = Players[MB_ID].GetComponent<PlayerMove>();
-            
+            playerStats MBStat = MBSet.Status;
             float MBdelay = 0.0f; // MB가 얼마나 끌어 때릴 지.
             
-            var ty = MBPhys.getLandHead_Y()+ getMaxHeightBySpeed(MBSet.Status.getJump()) - MBdelay;
+            var ty = MBPhys.getLandHead_Y()+ getMaxHeightBySpeed(MBSet.Status.getJump() * JUMP_SPIKE) - MBdelay;
             var tz = getLastTouchTeam() == TEAM_LEFT ? Z_RIGHT : Z_LEFT;
             var tx = NET_X + team * NEARFRONT;
-            float swingSpeed = 0.1f;
             float mbTime = getFlightTimeBySpeed(MBSet.Status.getJump()) + getTimeByHeight(MBdelay);
-            float costTime = ballPhys.getRemainTimeToParabolaX(x) + quickTime - mbTime - MBdelay;
-            quickTime = 1.3f;
+            costTime = ballPhys.getRemainTimeToParabolaX(x) + quickTime - mbTime;
+            quickTime = 1.2f;
 
-            if ( Players[MB_ID].GetComponent<PlayerMove>().IsAvailableToQuick(tx,tz, costTime)) {
+            if ( MBMove.IsAvailableToQuick(tx,ty,tz, costTime,true,MBdelay)) {
                 mbY = MBPhys.getLandHead_Y() + getMaxHeightBySpeed(MBSet.Status.getJump()) - MBdelay;
                 if (!MBSet.isControl())
                     MBMove.setJumpTime(ballPhys.getRemainTimeToParabolaX(x) + quickTime - mbTime , JUMP_SPIKE);            
                 
                 MBSet.setPlayerAction(ACTION_QUICKREADY);
-                MBMove.setSpikeTime(ballPhys.getRemainTimeToParabolaX(x) + quickTime - swingSpeed  );
-
-                TimeTrigger.addTrigger( ballPhys.getRemainTimeToParabolaX(x) + quickTime , () => {
-                    Debug.Log($"tx : {tx} ty :{ty} tz : {tz}");
-                    Debug.Log($"x : {Ball.transform.position.x} y :{Ball.transform.position.y} z : {Ball.transform.position.z}");
-                });                
+                MBMove.setActionTime(ballPhys.getRemainTimeToParabolaX(x) + quickTime - MBStat.getSwingTime() );       
                 MBSet.setTarget( tx , ty , tz);               
             }
 
             z = ballPhys.getParabolaZbyX(x);
-            goalX = x;
-            goalZ = z;
-
-            goalBall.transform.position = new Vector3 (goalX,y,goalZ); 
+            
+            goal = new Vector3(x,y,z);                     
+            goalBall.transform.position = new Vector3 (x,y,z); 
         }
         else {
             if (playerSet.getPlayerAction() == ACTION_QUICKREADY) {
                 Vector3 _target = playerSet.getTarget();
-                goalX = _target.x;
-                goalZ = _target.z;
-                goalBall.transform.position = new Vector3 (goalX,_target.y,goalZ); 
+                goalBall.transform.position = new Vector3 (_target.x,_target.y,_target.z); 
+                goal = new Vector3(_target.x,_target.y,_target.z);                     
             }
             else {             
+
+                
                 var delay = 0.05f;
-                playerSet.setPlayerAction(ACTION_SPIKEREADY);
                 x = playerMove.getFallingPlaceXbyPlayer(JUMP_SPIKE,true,delay); 
-                y = playerPhys.getLandHead_Y();//+ ballPhys.getHeight() / 2 ;        
-                var pTime = getFlightTimeBySpeed(playerSet.Status.getJump()) + getTimeByHeight(delay);
-                
-                playerMove.setJumpTime(ballPhys.getRemainTimeToParabolaX(x) - pTime , JUMP_SPIKE);
-                
-                float swingSpeed = 0.1f;
-                playerMove.setSpikeTime(ballPhys.getRemainTimeToParabolaX(x) - swingSpeed);     
-
-                y = y + getMaxHeightBySpeed(playerSet.Status.getJump()) - delay;
-                
-
-
+                y = playerPhys.getLandHead_Y() + getMaxHeightBySpeed(playerSet.Status.getJump() * JUMP_SPIKE) - delay;
                 z = ballPhys.getParabolaZbyX(x);
-                goalX = x;
-                goalZ = z;                    
-                goalBall.transform.position = new Vector3 (goalX,y,goalZ); 
+                float pTime = getFlightTimeBySpeed(playerSet.Status.getJump()) + getTimeByHeight(delay);
+                float left_time = ballPhys.getRemainTimeToParabolaX(x) - pTime;
+
+                if (playerMove.IsAvailableToAttack(x,y,z,left_time,true,delay)) { // 도달 가능하면 공격을 하세요.
+                    float swingSpeed = playerSet.Status.getSwingTime();
+                    playerSet.setPlayerAction(ACTION_SPIKEREADY);
+                    playerMove.setJumpTime(ballPhys.getRemainTimeToParabolaX(x) - pTime , JUMP_SPIKE);
+                    playerMove.setActionTime(ballPhys.getRemainTimeToParabolaX(x) - swingSpeed);     
+                }
+                else {
+                    x = playerMove.getFallingPlaceXbyPlayer(JUMP_NO,false,0.0f); // 점프 안하고 리시브.                 
+                    y = playerPhys.getLandBody_Y();        
+                    z = ballPhys.getParabolaZbyX(x);
+                    goal = new Vector3(x,y,z);                     
+                    goalBall.transform.position = new Vector3 (x,y,z);       
+
+                    float costTime = ballPhys.getRemainTimeToParabolaX(x) - playerStat.getReceiveTime();
+
+                    
+                    if (playerMove.IsArrivedInTime( x , z , costTime)) {
+                        playerSet.setPlayerAction(ACTION_RECEIVEREADY);
+                        Debug.Log("Receive Time");
+                        Debug.Log( playerStat.getReceiveTime());
+                        playerMove.setActionTime(ballPhys.getRemainTimeToParabolaX(x)-playerStat.getReceiveTime());       
+                    }
+                }
+                goalBall.transform.position = new Vector3 (x,y,z); 
+                goal = new Vector3(x,y,z);                     
             }
         }
-                               
+    
+        
     }
 
-
+    /// <summary>
+    /// 볼에게 일어날 다음 이벤트의 좌표를 나타낸다. (스파이크 위치 , 리시브 위치) 등등...
+    /// </summary>
+    /// <returns></returns>
+    public Vector3 getGoal() {
+        return goal;
+    }
 
     private void PlayerMoveStart(Vector3 direction,GameObject controlPlayer,bool isAdd = false) {
         controlPlayer.GetComponent<PlayerMove>().isMove = true;
@@ -417,7 +438,7 @@ public class MainControl : MonoBehaviour
     public float getPlayerTime(GameObject Player,float x, float z) {
         // 플레이어가 x값에 도달하는데 걸리는 시간 , z 값에 도달하는 데 걸리는 시간 그 중 더 큰 값 반환.
         PlayerMove cplayerMove = Player.GetComponent<PlayerMove>();
-        return Mathf.Max(cplayerMove.getTakingTimeToLinearX(x) , cplayerMove.getTakingTimeToLinearZ(z)) + cplayerMove.getMoveDelay();
+        return cplayerMove.getArrivedTime(x,z);// Mathf.Max(cplayerMove.getTakingTimeToLinearX(x) , cplayerMove.getTakingTimeToLinearZ(z)) + cplayerMove.getMoveDelay();
     }
     public void setCurrentSituation(int st){
         currentSituation = st;
@@ -429,20 +450,54 @@ public class MainControl : MonoBehaviour
         movePhysics ballPhys = Ball.GetComponent<movePhysics>();
         return Mathf.Max(ballPhys.getRemainTimeToParabolaX(x) , ballPhys.getRemainTimeToParabolaZ(z));  
     }
-    private float calculateScore(GameObject Player , float x) {
+    private float calculateScore(GameObject Player , int TouchCount) {
         //어떤 선수가 followingPlayer가 될 지 우선순위를 구하기 위해 플레이어별 거리,포지션으로 스코어 계산
         PlayerSetting ps = Player.GetComponent<PlayerSetting>();
+        PlayerMove playerMove = Player.GetComponent<PlayerMove>();
+        movePhysics ballPhys = Ball.GetComponent<movePhysics>();
         int team = ps.getTeam();
         int position = ps.getPosition();
+        float x,z;
+        float ballTime;
+
+        float jump_type = JUMP_NO;
+        switch(TouchCount) {
+            default: x = playerMove.getFallingPlaceXbyPlayer(JUMP_NO,false,0.0f);
+                    z = ballPhys.getParabolaZbyX(x);
+                    ballTime = getBallTime(x,z);
+                    break;
+
+            case 1: x = playerMove.getFallingPlaceXbyPlayer(JUMP_TOSS,true,0.0f); // 점프 토스로 계산
+                    z = ballPhys.getParabolaZbyX(x);
+                    ballTime = getBallTime(x,z);
+                    jump_type = JUMP_TOSS;
+                    if (!playerMove.IsArrivedInTime(x,z,ballTime) ) {
+                        jump_type = JUMP_NO;
+                        x = playerMove.getFallingPlaceXbyPlayer(JUMP_NO,true,0.0f); // 점프 토스 안되면..
+                        z = ballPhys.getParabolaZbyX(x);
+                        ballTime = getBallTime(x,z);
+                    }
+                    break;
+            case 2: x = playerMove.getFallingPlaceXbyPlayer(JUMP_SPIKE,true,0.0f); // 공격
+                    z = ballPhys.getParabolaZbyX(x);
+                    ballTime = getBallTime(x,z);
+                    jump_type = JUMP_SPIKE;
+                    if (!playerMove.IsArrivedInTime(x,z,ballTime)) {
+                        x = playerMove.getFallingPlaceXbyPlayer(JUMP_NO,true,0.0f); // 공격 안되면 리시브..
+                        z = ballPhys.getParabolaZbyX(x);
+                        ballTime = getBallTime(x,z);
+                        jump_type = JUMP_NO;
+                    }
+                    break;
+        }
+
+
 
         
-        float z = Ball.GetComponent<movePhysics>().getParabolaZbyX(x);
         float playerTime = getPlayerTime(Player , x , z);
-        float ballTime = getBallTime( x , z);
         float score = 0.0f;
         int AbsTouchCount = Mathf.Abs(getTouchCount(team));
 
-        float jump_type = JUMP_NO;
 
         if (AbsTouchCount == 0) { // 리시브 
             score = Mathf.Max(0.0f,ballTime - playerTime);
@@ -450,7 +505,6 @@ public class MainControl : MonoBehaviour
             else if (position == SETTER) { score = score / 2; } //세터의 경우 스코어 절반
         }
         else if (AbsTouchCount == 1) {
-            jump_type = JUMP_TOSS;
             score = Mathf.Max(0.0f,ballTime - playerTime);
             if (position == SETTER) {    score = score * 10.0f; } 
             if (position == SPIKER) {    score = score * 3.0f;  } 
@@ -465,7 +519,8 @@ public class MainControl : MonoBehaviour
                 if (position == SPIKER) { score = score * 4.5f; }
             }
             if ( getCurrentSituation() == STRATEGY_QUICK ) {
-                if (position == BLOCKER) { score = score * 4.5f; }
+                if (ps.getPlayerAction() == ACTION_QUICKREADY) score = INF;
+                //if (position == BLOCKER) { score = score * 100.0f; }
             }
         }
         else {
@@ -505,6 +560,7 @@ public class MainControl : MonoBehaviour
         //get player who has the Highest score.
         float maxVal = -10.0f;
         GameObject maxPlayer = null;
+        movePhysics ballPhys = Ball.GetComponent<movePhysics>();
 
         for (int i = 0; i < Constants.playerNumber; i ++)
         {
@@ -512,16 +568,7 @@ public class MainControl : MonoBehaviour
             PlayerMove playerMove =  Players[i].GetComponent<PlayerMove>();
             float score;
 
-            if (getTouchCount(player_team) == 2) { // 공격하는 상황
-                score = calculateScore(Players[i] , playerMove.getFallingPlaceXbyPlayer(JUMP_SPIKE, true,0.0f)); // 스파이크 타점 기준 도달하는데 걸리는 시간.
-                if (score <= 0.0f) score = calculateScore(Players[i] , playerMove.getFallingPlaceXbyPlayer(JUMP_NO,true,0.0f));
-            }
-            else if (getTouchCount(player_team) == 1) { // 토스하는 상황의 경우.
-                score = calculateScore(Players[i] , playerMove.getFallingPlaceXbyPlayer(JUMP_TOSS , true,0.0f)); // 점프토스 타점 기준 도달하는데 걸리는 score 계산 후 이것이 0일 경우. 재계산
-                if (score <= 0.0f) score = calculateScore(Players[i] , playerMove.getFallingPlaceXbyPlayer(JUMP_NO,true,0.0f));
-            }
-            else 
-                score = calculateScore(Players[i] , playerMove.getFallingPlaceXbyPlayer(JUMP_NO,false,0.0f));
+            score = calculateScore(Players[i] , getTouchCount(player_team));
             
             Players[i].GetComponent<PlayerMove>().score = score; 
 
