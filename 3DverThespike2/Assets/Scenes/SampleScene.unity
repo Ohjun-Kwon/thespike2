@@ -183,6 +183,7 @@ MonoBehaviour:
   movingDir: {x: -1, y: 0, z: 0}
   isMove: 0
   isSlow: 0
+  isSlide: 0
   landY: 0
   Height: 0
   actionTime: 0
@@ -190,6 +191,11 @@ MonoBehaviour:
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
   goal: {x: 0, y: 0, z: 0}
+  slideSpeedX: 0
+  slideSpeedZ: 0
+  slideTime: 0
+  slideSpeedXFriction: 0
+  slideSpeedZFriction: 0
   movingSpeed: 0
 --- !u!114 &107539773
 MonoBehaviour:
@@ -207,6 +213,7 @@ MonoBehaviour:
   positionName: 
   playerAction: 0
   control: 0
+  goal: {x: 0, y: 0, z: 0}
   checkB: 0
   maxH: 0
 --- !u!65 &107539774
@@ -463,6 +470,7 @@ MonoBehaviour:
   movingDir: {x: -1, y: 0, z: 0}
   isMove: 0
   isSlow: 0
+  isSlide: 0
   landY: 0
   Height: 0
   actionTime: 0
@@ -470,6 +478,11 @@ MonoBehaviour:
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
   goal: {x: 0, y: 0, z: 0}
+  slideSpeedX: 0
+  slideSpeedZ: 0
+  slideTime: 0
+  slideSpeedXFriction: 0
+  slideSpeedZFriction: 0
   movingSpeed: 0
 --- !u!114 &405833251
 MonoBehaviour:
@@ -487,6 +500,7 @@ MonoBehaviour:
   positionName: 
   playerAction: 0
   control: 0
+  goal: {x: 0, y: 0, z: 0}
   checkB: 0
   maxH: 0
 --- !u!65 &405833252
@@ -1195,6 +1209,7 @@ MonoBehaviour:
   movingDir: {x: -1, y: 0, z: 0}
   isMove: 0
   isSlow: 0
+  isSlide: 0
   landY: 0
   Height: 0
   actionTime: 0
@@ -1202,6 +1217,11 @@ MonoBehaviour:
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
   goal: {x: 0, y: 0, z: 0}
+  slideSpeedX: 0
+  slideSpeedZ: 0
+  slideTime: 0
+  slideSpeedXFriction: 0
+  slideSpeedZFriction: 0
   movingSpeed: 0
 --- !u!114 &961127457
 MonoBehaviour:
@@ -1219,6 +1239,7 @@ MonoBehaviour:
   positionName: 
   playerAction: 0
   control: 0
+  goal: {x: 0, y: 0, z: 0}
   checkB: 0
   maxH: 0
 --- !u!65 &961127458
@@ -1456,6 +1477,7 @@ MonoBehaviour:
   movingDir: {x: -1, y: 0, z: 0}
   isMove: 0
   isSlow: 0
+  isSlide: 0
   landY: 0
   Height: 0
   actionTime: 0
@@ -1463,6 +1485,11 @@ MonoBehaviour:
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
   goal: {x: 0, y: 0, z: 0}
+  slideSpeedX: 0
+  slideSpeedZ: 0
+  slideTime: 0
+  slideSpeedXFriction: 0
+  slideSpeedZFriction: 0
   movingSpeed: 0
 --- !u!114 &1043825059
 MonoBehaviour:
@@ -1480,6 +1507,7 @@ MonoBehaviour:
   positionName: 
   playerAction: 0
   control: 0
+  goal: {x: 0, y: 0, z: 0}
   checkB: 0
   maxH: 0
 --- !u!65 &1043825060
@@ -1989,6 +2017,7 @@ MonoBehaviour:
   positionName: 
   playerAction: 0
   control: 0
+  goal: {x: 0, y: 0, z: 0}
   checkB: 0
   maxH: 0
 --- !u!114 &1699464262
@@ -2006,6 +2035,7 @@ MonoBehaviour:
   movingDir: {x: -1, y: 0, z: 0}
   isMove: 0
   isSlow: 0
+  isSlide: 0
   landY: 0
   Height: 0
   actionTime: 0
@@ -2013,6 +2043,11 @@ MonoBehaviour:
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
   goal: {x: 0, y: 0, z: 0}
+  slideSpeedX: 0
+  slideSpeedZ: 0
+  slideTime: 0
+  slideSpeedXFriction: 0
+  slideSpeedZFriction: 0
   movingSpeed: 0
 --- !u!114 &1699464263
 MonoBehaviour:
@@ -2109,6 +2144,7 @@ MonoBehaviour:
   movingDir: {x: -1, y: 0, z: 0}
   isMove: 0
   isSlow: 0
+  isSlide: 0
   landY: 0
   Height: 0
   actionTime: 0
@@ -2116,6 +2152,11 @@ MonoBehaviour:
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
   goal: {x: 0, y: 0, z: 0}
+  slideSpeedX: 0
+  slideSpeedZ: 0
+  slideTime: 0
+  slideSpeedXFriction: 0
+  slideSpeedZFriction: 0
   movingSpeed: 0
 --- !u!114 &1825636268
 MonoBehaviour:
@@ -2133,6 +2174,7 @@ MonoBehaviour:
   positionName: 
   playerAction: 0
   control: 0
+  goal: {x: 0, y: 0, z: 0}
   checkB: 0
   maxH: 0
 --- !u!65 &1825636269
@@ -2286,6 +2328,7 @@ MonoBehaviour:
   movingDir: {x: -1, y: 0, z: 0}
   isMove: 0
   isSlow: 0
+  isSlide: 0
   landY: 0
   Height: 0
   actionTime: 0
@@ -2293,6 +2336,11 @@ MonoBehaviour:
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
   goal: {x: 0, y: 0, z: 0}
+  slideSpeedX: 0
+  slideSpeedZ: 0
+  slideTime: 0
+  slideSpeedXFriction: 0
+  slideSpeedZFriction: 0
   movingSpeed: 0
 --- !u!114 &1852328264
 MonoBehaviour:
@@ -2310,6 +2358,7 @@ MonoBehaviour:
   positionName: 
   playerAction: 0
   control: 0
+  goal: {x: 0, y: 0, z: 0}
   checkB: 0
   maxH: 0
 --- !u!65 &1852328265
@@ -2463,6 +2512,7 @@ MonoBehaviour:
   movingDir: {x: -1, y: 0, z: 0}
   isMove: 0
   isSlow: 0
+  isSlide: 0
   landY: 0
   Height: 0
   actionTime: 0
@@ -2470,6 +2520,11 @@ MonoBehaviour:
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
   goal: {x: 0, y: 0, z: 0}
+  slideSpeedX: 0
+  slideSpeedZ: 0
+  slideTime: 0
+  slideSpeedXFriction: 0
+  slideSpeedZFriction: 0
   movingSpeed: 0
 --- !u!114 &1928712384
 MonoBehaviour:
@@ -2487,6 +2542,7 @@ MonoBehaviour:
   positionName: 
   playerAction: 0
   control: 0
+  goal: {x: 0, y: 0, z: 0}
   checkB: 0
   maxH: 0
 --- !u!65 &1928712385

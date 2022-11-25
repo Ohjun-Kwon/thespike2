@@ -10,6 +10,7 @@ public class PlayerMove : MonoBehaviour
     public Vector3 movingDir = Vector3.left;
     [SerializeField] public bool isMove = false; // 움직이는 지 안움직이는 지   
     public bool isSlow = false; // 느리게 움직이는지
+    [SerializeField]public bool isSlide = false;
     public float landY;
     public float Height;
     private float jumpTime;
@@ -24,6 +25,13 @@ public class PlayerMove : MonoBehaviour
     private PlayerSetting playerSetting;
     private playerStats Status;
     [SerializeField]public Vector3 goal;
+
+    [SerializeField]private float slideSpeedX;
+    [SerializeField]private float slideSpeedZ;
+    [SerializeField]private float slideTime;
+
+    [SerializeField]private float slideSpeedXFriction;
+    [SerializeField]private float slideSpeedZFriction;    
     Transform highXTransform;
 
     [SerializeField]public float movingSpeed;
@@ -55,6 +63,21 @@ public class PlayerMove : MonoBehaviour
         Status = GetComponent<PlayerSetting>().getStatus();       
     }
 
+    public void DoSlide() {
+        if (isSlide) return;
+        isSlide = true;
+        movePhys.setVector(90 - playerSetting.getTeam() *70 ,1.7f);
+        movePhys.startParabola();
+        slideSpeedX = movePhys.getHorizontalSpeed();
+        slideSpeedZ = movePhys.getDepthSpeed();
+        slideTime = 3.0f;
+        slideSpeedXFriction = slideSpeedX*playSpeed / slideTime;
+        slideSpeedZFriction = slideSpeedZ*playSpeed / slideTime;
+        //슬라이드 시간 이후에 Slide를 끈다.
+        timeTrigger.addTrigger(movePhys.getFlightTime() + slideTime,()=> {
+            isSlide = false;
+        });
+    }
     public void setJumpTime(float x,float _jump_type) {
         
         if (_jump_type == JUMP_NO) return; // 점프가 아니면 CUT!
@@ -66,13 +89,24 @@ public class PlayerMove : MonoBehaviour
        actionTime = timeTrigger.getMainTimeFlow() + x;
     }
 
-    void FixedUpdate()
+    public bool isAvailableToMove() {
+        if (isSlide) return false;
+        if (!isMoveDelayFree()) return false;
+        return (isMove);
+    }
+    public void PlayerFixedUpdate()
     {
         checkMoveDelay();
-        if (isMove) {
+        if (isAvailableToMove()) {
             float speed = isSlow ? SLOW_SPEED : 1.0f; // Slow면 0.3배로 간다.
-            if (isMoveDelayFree()) 
                 movePhys.moveLinear(movingDir , Status.getSpeed() * speed);
+        }
+        if (isSlide) {
+            if (movePhys.isParabolaEnd()){
+                movePhys.moveLinear( new Vector3 (slideSpeedX,0f,slideSpeedZ), 1f);
+                slideSpeedX -= slideSpeedXFriction;
+                slideSpeedZ -= slideSpeedZFriction;
+            }
         }
         if (timeTrigger.getMainTimeFlow() >= jumpTime) { DoJump(jumpType); jumpTime = INF;}
         if (timeTrigger.getMainTimeFlow() >= actionTime){ 
@@ -96,9 +130,8 @@ public class PlayerMove : MonoBehaviour
                 playerSetting.setPlayerAction(ACTION_RECEIVEDONE); 
             }                             
         }
-        if (playerSetting.getPlayerAction() == ACTION_QUICKREADY) GetComponent<Renderer>().material.SetColor("_Color", Color.black);
-        else    GetComponent<Renderer>().material.SetColor("_Color", Color.white);
     }   
+    
 
     public void setMoveDelay(float md){
         moveDelay = md;
@@ -122,20 +155,20 @@ public class PlayerMove : MonoBehaviour
     /// <param name = "isSlow"> 느리게 가는지의 시간</param>
     /// <param name = "slack_time">얼마나 더 여유 시간을 줄 지</param>
     /// <returns>도달 가능 여부</returns>
-    public bool IsArrivedInTime(float x , float z,float left_time,bool isSlow = false,float slack_time = 0.0f){
-
-        float slowSpeed = isSlow ? SLOW_SPEED : 1.0f;
+    public bool IsArrivedInTime(float x , float z,float left_time,bool isSlow = false,float slack_time = 0.0f, bool isOkay = false){
+        
+        float slowSpeed = isSlow ? SLOW_SPEED : 1.0f;   
         float distance = Mathf.Max(Mathf.Abs(x - transform.position.x) , Mathf.Abs(z - transform.position.z));
         float costTime = distance/( Status.getSpeed() * slowSpeed) + getMoveDelay(); // moveDelay도 추가해준다.
 
-        
+        if (isOkay) Debug.Log($"costTime : {costTime}");
         if (costTime < (left_time - slack_time)) // 시간 내에 도달 할 수 있으면 true
             return true;
         else
             return false;
     }
 
-    public float getArrivedTime(float x , float z){
+    public float getArrivedTime(float x , float z,bool isSlow = false){
         float slowSpeed = isSlow ? SLOW_SPEED : 1.0f;
         float distance = Mathf.Max(Mathf.Abs(x - transform.position.x) , Mathf.Abs(z - transform.position.z));
         float costTime = distance/( Status.getSpeed() * slowSpeed) + getMoveDelay(); // moveDelay도 추가해준다.
@@ -159,6 +192,7 @@ public class PlayerMove : MonoBehaviour
     /// <param name="controlPlayer"></param>
     /// <param name="jump">어떤 종류의 점프인지</param>
     /// <param name="isTop">플레이어의 머리</param>
+    /// <param name ="isFall">내려가고 있는 상태의 볼인지</param>
     /// <returns></returns>
     public float getFallingPlaceXbyPlayer(float _jump_type,bool isTop,float DELAY){
         movePhysics playerPhys = GetComponent<movePhysics>();
@@ -168,7 +202,9 @@ public class PlayerMove : MonoBehaviour
 
         float add_playerHeight = (isTop ? playerPhys.getHeight() / 2 :  0.0f);
         float maxY = 0.0f; 
-        return ballPhys.getParabolaXbyMaxY(playerPhys.getLandBody_Y() + getMaxHeightBySpeed(playerSet.Status.getJump() * _jump_type) - DELAY + add_playerHeight, true , ref maxY);    
+        float x = ballPhys.getParabolaXbyMaxY(playerPhys.getLandBody_Y() + getMaxHeightBySpeed(playerSet.Status.getJump() * _jump_type) - DELAY + add_playerHeight, isTop , ref maxY);
+        
+        return x;
     }
 
 
@@ -229,8 +265,8 @@ public class PlayerMove : MonoBehaviour
         if (isCollider) { // 내가 그 때리는 사람이라면.
             setMoveDelay(5.0f);
             playerSetting.setPlayerAction(ACTION_TOSSDONE);                    
-            mainControl.Ball.GetComponent<BallMovement>().ballToss(playerSetting.getTeam());
             mainControl.setLastTouch(gameObject);
+            mainControl.Ball.GetComponent<BallMovement>().ballToss(playerSetting.getTeam());
         }
     } 
     public void HitReceive() {
@@ -240,8 +276,8 @@ public class PlayerMove : MonoBehaviour
 
             setMoveDelay(5.0f);
             playerSetting.setPlayerAction(ACTION_RECEIVEDONE);
-            mainControl.Ball.GetComponent<BallMovement>().ballReceive(playerSetting.getTeam());
             mainControl.setLastTouch(gameObject);
+            mainControl.Ball.GetComponent<BallMovement>().ballReceive(playerSetting.getTeam());
         }
     }     
     // 스파이크를 때리는 것
@@ -250,8 +286,8 @@ public class PlayerMove : MonoBehaviour
         if (isCollider) { // 내가 그 때리는 사람이라면.
             setMoveDelay(5.0f); // 움직임 딜레이 
             playerSetting.setPlayerAction(ACTION_SPIKEDONE);   
-            mainControl.Ball.GetComponent<BallMovement>().ballSpike(playerSetting.getTeam());
             mainControl.setLastTouch(gameObject);        
+            mainControl.Ball.GetComponent<BallMovement>().ballSpike(playerSetting.getTeam());
             Debug.Log("Spike!");
         }
     }

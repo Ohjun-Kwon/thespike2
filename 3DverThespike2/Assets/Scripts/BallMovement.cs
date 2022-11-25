@@ -57,11 +57,11 @@ public class BallMovement : MonoBehaviour
         Debug.Log("Do Receive");
 
         if (MainControl.getTouchCount(team) == 0) {
-            movePhys.setVectorByVspeedParabola(NET_X + team * (0.05f + UnityEngine.Random.Range(-1.0f,5.0f)),NET_Y/2,UnityEngine.Random.Range(2.0f,3.2f));
+            movePhys.setVectorByVspeedParabola(NET_X + team * (0.05f + UnityEngine.Random.Range(-1.0f,9.0f)),NET_Y/2,UnityEngine.Random.Range(1.6f,3.2f));
             movePhys.setZDirection(Constants.CENTER);
         }
         else {
-            movePhys.setVectorByVspeedParabola(NET_X + team * (0.05f + UnityEngine.Random.Range(-6.0f,-2.0f)),NET_Y/2,UnityEngine.Random.Range(2.0f,3.2f));
+            movePhys.setVectorByVspeedParabola(NET_X - team * (0.05f + UnityEngine.Random.Range(1.0f,6.0f)),NET_Y/2,UnityEngine.Random.Range(2.0f,3.2f));
             movePhys.setZDirection(Constants.CENTER);
         }
         
@@ -95,13 +95,13 @@ public class BallMovement : MonoBehaviour
         int MB_ID = BLOCKER + (MainControl.getLastTouchTeam() == TEAM_LEFT ? 0 : 4);
         PlayerSetting MBSet = MainControl.getPlayersByIndex(MB_ID).GetComponent<PlayerSetting>();
         
-        if (MBSet.getPlayerAction() == ACTION_QUICKREADY && UnityEngine.Random.Range(0,6) < 3){
+        if (MBSet.getPlayerAction() == ACTION_QUICKREADY && UnityEngine.Random.Range(0,6) < 2){
             float z_dir = team == TEAM_LEFT ? Z_RIGHT : Z_LEFT;
             movePhys.setVectorForQuickAttack( NET_X + team * NEARFRONT, MainControl.mbY ,z_dir, MainControl.quickTime);
             MainControl.setCurrentSituation(STRATEGY_QUICK);
         }
         else{ 
-            movePhys.setVectorByVspeedParabola(NET_X + team * (2.5f + UnityEngine.Random.Range(0.0f,2.0f)),NET_Y,1.95f);
+            movePhys.setVectorByVspeedParabola(NET_X + team * (-1.5f + UnityEngine.Random.Range(0.0f,7.0f)),NET_Y,0.75f + UnityEngine.Random.Range(1.1f,2f));
             movePhys.setZDirection(Constants.CENTER);
             MainControl.setCurrentSituation(STRATEGY_OPEN);
         }
@@ -135,7 +135,10 @@ public class BallMovement : MonoBehaviour
         CheckHit();
     }
     public void ballHitNet() {
-        movePhys.setVector(movePhys.getDirection()+180.0f,movePhys.getSpeed()*0.3f);
+        float direction = movePhys.getDirection();
+        if ((direction >= 0 &&  direction < 90) || (direction >= 270 && direction < 359)) { direction += 30*UnityEngine.Random.Range(0.5f,1.3f);}
+        else { direction += -30*UnityEngine.Random.Range(0.5f,1.3f);}
+        movePhys.setVector(+180.0f,movePhys.getSpeed()*0.3f);
         movePhys.startParabola();
         MainSetting.setCurrentBallType();
         MainControl.commandPlayerMove(); 
@@ -200,3 +203,4 @@ public class BallMovement : MonoBehaviour
     }
 
 }
+

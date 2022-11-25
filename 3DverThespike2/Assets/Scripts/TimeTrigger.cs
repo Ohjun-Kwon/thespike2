@@ -47,6 +47,7 @@ public class TimeTrigger : MonoBehaviour
 {
     private float mainTimeFlow = 0f;
     private movePhysics[] PlayerPhys = new movePhysics[playerNumber];
+    private PlayerMove[] PlayerMove = new PlayerMove[playerNumber];
     private movePhysics ballPhys;
 
 
@@ -54,16 +55,20 @@ public class TimeTrigger : MonoBehaviour
     Trigger ballTrigger = new Trigger(); // ball 움직임 트리거 -> Ball 움직임 트리거는 오직 하나밖에 존재하지 못한다.
 
     void Start() {
-        for (int i = 0; i < playerNumber ; i ++)
+        for (int i = 0; i < playerNumber ; i ++){
+            PlayerMove[i] = GetComponent<MainControl>().getPlayersByIndex(i).GetComponent<PlayerMove>(); // 해당 플레이어의 movePhysics들을 모두 가져온다.
             PlayerPhys[i] = GetComponent<MainControl>().getPlayersByIndex(i).GetComponent<movePhysics>(); // 해당 플레이어의 movePhysics들을 모두 가져온다.
+        }
             ballPhys = GetComponent<MainControl>().Ball.GetComponent<movePhysics>(); // 볼의 movePhysics도 가져온다.
         
     }
     void FixedUpdate()
     {
         mainTimeFlow += playSpeed;
-        for (int i = 0; i < playerNumber ; i ++)
+        for (int i = 0; i < playerNumber ; i ++) {
+            PlayerMove[i].PlayerFixedUpdate();
             PlayerPhys[i].PhysicalFixedUpdate(mainTimeFlow);
+        }
         ballPhys.PhysicalFixedUpdate(mainTimeFlow);
 
         
@@ -89,6 +94,7 @@ public class TimeTrigger : MonoBehaviour
         }
 
     }
+    
     public float getMainTimeFlow(){
         return mainTimeFlow;
     }
@@ -98,7 +104,6 @@ public class TimeTrigger : MonoBehaviour
         TriggerList.Sort(Sort); // 시간이 적은게 우선 실행 되도록 정렬 해준다.
         return T;
     }
-
 
     int Sort(Trigger t1 , Trigger t2) {
         if (t1.getTime() < t2.getTime()) return 1;

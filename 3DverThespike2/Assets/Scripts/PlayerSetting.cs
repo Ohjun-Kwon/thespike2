@@ -22,6 +22,9 @@ public class PlayerSetting : MonoBehaviour
     [SerializeField] public int playerAction;
     public bool control = false;
 
+    [SerializeField] public Vector3 goal;
+    private float goalJump;
+    private float goalDelay;
     
     [SerializeField] public bool checkB; 
     [SerializeField] public float maxH; 
@@ -48,7 +51,20 @@ public class PlayerSetting : MonoBehaviour
     public void setTarget(float tx,float ty,float tz){
         target = new Vector3(tx,ty,tz);
     }
-
+    public void setGoal(float x,float y, float z, float goalJump,float goalDelay = 0.0f) {
+        goal = new Vector3(x,y,z);
+        this.goalDelay = goalDelay;
+        this.goalJump = goalJump;
+    }
+    public Vector3 getGoal(){
+        return goal;
+    }
+    public float getGoalJump(){
+        return goalJump;
+    }
+    public float getGoalDelay(){
+        return goalDelay;
+    }
     /// <summary> 선수를 Control 하는지 여부 설정. ( True False ) </summary>
     public GameObject setControl(bool con){
         control = con;

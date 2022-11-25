@@ -104,12 +104,28 @@ public class movePhysics : MonoBehaviour
         depthSpeed = 0.0f;
         startParabola();
     }
+
+    /// <summary>
+    /// 시작->끝 , 시간에 따른 좌표를 정해줘.
+    /// </summary>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
+    /// <param name="time"></param>
     public void moveParabola(Vector3 start ,Vector3 end , float time) {
         var t = time / flightTime;
         var mid = Vector3.Lerp(start, end ,t);
         mid.y = start.y  + (mid.x - start.x)*(verticalSpeed / horizontalSpeed ) - 0.5f*gravityScale*Mathf.Pow( (mid.x - start.x) / horizontalSpeed, 2);
         transform.position = new Vector3(mid.x , mid.y , mid.z);            
     }    
+    public float getHorizontalSpeed() {
+        return horizontalSpeed;
+    }
+    public float getVerticalSpeed() {
+        return verticalSpeed;
+    }
+    public float getDepthSpeed(){
+        return depthSpeed;
+    }
     public Vector3 getCurrentPosition() {
         return getPositionByTime( getCurrentTime());
     }
