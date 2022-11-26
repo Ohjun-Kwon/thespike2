@@ -67,18 +67,18 @@ public class MainControl : MonoBehaviour
              
              Players[1+ j*4].GetComponent<PlayerSetting>().setPosition(Constants.SETTER);
              Players[1 + j*4].GetComponent<PlayerSetting>().setRotation(1);
-             Players[1+ j*4].GetComponent<PlayerSetting>().playerCreate(2.0f,1.5f,1.2f,1.0f);
+             Players[1+ j*4].GetComponent<PlayerSetting>().playerCreate(2.0f,1.5f,1.6f,1.0f);
              Players[1+ j*4].GetComponent<PlayerMove>().setStatus();
              
              Players[2+ j*4].GetComponent<PlayerSetting>().setPosition(Constants.BLOCKER);
              Players[2 +j*4].GetComponent<PlayerSetting>().setRotation(2);
-             Players[2+ j*4].GetComponent<PlayerSetting>().playerCreate(4.0f,1.6f,1.4f,1.0f);        
+             Players[2+ j*4].GetComponent<PlayerSetting>().playerCreate(4.0f,1.6f,1.7f,1.0f);        
              Players[2+ j*4].GetComponent<PlayerMove>().setStatus();        
              
              
              Players[3 + j*4].GetComponent<PlayerSetting>().setPosition(Constants.SPIKER);
              Players[3 + j*4].GetComponent<PlayerSetting>().setRotation(3);
-             Players[3+ j*4].GetComponent<PlayerSetting>().playerCreate(1.0f,1.8f,1.5f,1.0f);
+             Players[3+ j*4].GetComponent<PlayerSetting>().playerCreate(1.0f,1.8f,1.8f,1.0f);
              Players[3+ j*4].GetComponent<PlayerMove>().setStatus();
 
              nowServePlayer = Players[1];

@@ -250,10 +250,12 @@ public class PlayerMove : MonoBehaviour
     }
     public void DoJump(float _jump_type) {
         if (movePhys.isParabolaEnd()) {
+            mainControl.playSound("FOOT");
             movePhys.setVector(90f,Status.getJump() * _jump_type);
             movePhys.startParabola();
             //highXTransform.position = new Vector3(0.0f,movePhys.getFlightMaxY(Status.getJump()) + Height / 2  , 0.0f);
         }
+        
     }
     public void DoSpike() {
         float swing_time = GetComponent<PlayerSetting>().getStatus().getSwingTime(); // 스윙 속도는 사람마다 다를 예정.

@@ -160,14 +160,23 @@ public class movePhysics : MonoBehaviour
         horizontalSpeed = Mathf.Max(0.001f , Mathf.Abs(horizontalSpeed)) * Mathf.Sign(horizontalSpeed); // 가로속도가 0이면 , 1/  0이되어 ㅈ되는 경우가 많음. 그래서 최솟값으로 설정.
         return;
     }
-    public float getVerticalFlippedDirection(){
-        //verticalSpeed는 시작 속도이다. 그러므로 이렇게 하면 안돼.
-         if (horizontalSpeed == 0.0f) return 90.0f;
-         Debug.Log($"direction : {Mathf.Atan(-verticalSpeed / horizontalSpeed) * (180 / Constants.Pi)}");
-         return Mathf.Atan(-verticalSpeed / horizontalSpeed) * (180 / Constants.Pi);
-    } 
-    public float getDirection(){
-        return direction;
+    public float getCurrentDirection(){
+        Vector3 curPos = getPositionByTime(getCurrentTime());
+        Vector3 pastPos = getPositionByTime(0.0f);
+
+        float hs = curPos.x - pastPos.x;
+        float vs = curPos.y - pastPos.y;
+        if (hs == 0.0f) return 90.0f;
+
+        float curDir = Mathf.Atan(vs / hs) * (180 / Constants.Pi);
+        Debug.Log($"nowDir : {curDir}");
+        if (curDir < 0)
+            curDir += 360;
+        else
+            curDir += 180;
+
+        Debug.Log($"nowDir2 : {curDir}");
+        return curDir;    
     }
     public float getSpeed(){
         //verticalSpeed는 시작 속도이다.

@@ -42,7 +42,7 @@ public class BallMovement : MonoBehaviour
         if (timeTrigger.getMainTimeFlow() >= hitFloorTime) 
         {
             //Debug.Log($"hit Floor Time이 몇이길래..? {hitFloorTime}");
-            //ballHitFloor();
+            ballHitFloor();
             hitFloorTime = INF;
         }
 
@@ -87,17 +87,19 @@ public class BallMovement : MonoBehaviour
         
     }
     public void ballSpike(int team) {
-        if (UnityEngine.Random.Range(0,9) < 8) {
+        if (UnityEngine.Random.Range(0,9) < 7) {
             movePhys.setVectorByVspeedSpike(NET_X + team * (- 1.5f - UnityEngine.Random.Range(5.0f,12.0f)),movePhys.getLandBody_Y(),UnityEngine.Random.Range(1.1f,2f));
             movePhys.setZDirection(UnityEngine.Random.Range(0,3));
+            MainControl.playSound("SPIKE");
         }
         else {
             movePhys.setVectorByVspeedParabola(NET_X + team * (- 3.05f),NET_Y,UnityEngine.Random.Range(0.3f,0.8f));
             movePhys.setZDirection(UnityEngine.Random.Range(0,3));
+            MainControl.playSound("TOSS");
         }
         movePhys.startParabola();
         MainControl.addTouchCount(team);
-        MainControl.playSound("SPIKE");
+        
         ballMovementChange(1);   
     }
 
@@ -119,7 +121,7 @@ public class BallMovement : MonoBehaviour
         MainSetting.setCurrentSituation(SIT_RALLYPLAYING); 
         movePhys.startParabola();
         MainControl.addTouchCount(team);
-        //MainControl.playSound("TOSS");
+        MainControl.playSound("TOSS");
         ballMovementChange(1);
     }    
 
@@ -138,16 +140,19 @@ public class BallMovement : MonoBehaviour
     }
     public void ballHitFloor(){
         Debug.Log("Hit Floor");
-        Debug.Log(movePhys.getVerticalFlippedDirection());
+        
         Debug.Log(movePhys.getSpeed()*0.8f);
         MainControl.playSound("LAND");
-        //movePhys.setVector(movePhys.getVerticalFlippedDirection(),Mathf.Abs(movePhys.getSpeed()*0.9f));
-        //movePhys.startParabola();
-        //MainControl.resetTouchCount();
+
+        float newDir = 360.0f-movePhys.getCurrentDirection();
+        Debug.Log(newDir);
+        movePhys.setVector(newDir,Mathf.Abs(movePhys.getSpeed()*0.9f));
+        movePhys.startParabola();
+        MainControl.resetTouchCount();
         CheckHit();
     }
     public void ballHitNet() {
-        float direction = movePhys.getDirection();
+        float direction = movePhys.getCurrentDirection();
         if ((direction >= 0 &&  direction < 90) || (direction >= 270 && direction < 359)) { direction += 30*UnityEngine.Random.Range(0.5f,1.3f);}
         else { direction += -30*UnityEngine.Random.Range(0.5f,1.3f);}
         movePhys.setVector(+180.0f,movePhys.getSpeed()*0.3f);
