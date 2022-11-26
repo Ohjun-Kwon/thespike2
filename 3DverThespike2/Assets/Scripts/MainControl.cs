@@ -72,21 +72,19 @@ public class MainControl : MonoBehaviour
              
              Players[2+ j*4].GetComponent<PlayerSetting>().setPosition(Constants.BLOCKER);
              Players[2 +j*4].GetComponent<PlayerSetting>().setRotation(2);
-             Players[2+ j*4].GetComponent<PlayerSetting>().playerCreate(4.0f,1.6f,5.4f,1.0f);        
+             Players[2+ j*4].GetComponent<PlayerSetting>().playerCreate(4.0f,1.6f,1.4f,1.0f);        
              Players[2+ j*4].GetComponent<PlayerMove>().setStatus();        
              
              
              Players[3 + j*4].GetComponent<PlayerSetting>().setPosition(Constants.SPIKER);
              Players[3 + j*4].GetComponent<PlayerSetting>().setRotation(3);
-             Players[3+ j*4].GetComponent<PlayerSetting>().playerCreate(1.0f,1.8f,5.5f,1.0f);
+             Players[3+ j*4].GetComponent<PlayerSetting>().playerCreate(1.0f,1.8f,1.5f,1.0f);
              Players[3+ j*4].GetComponent<PlayerMove>().setStatus();
 
              nowServePlayer = Players[1];
         }
         MainSetting = GetComponent<MainSetting>();
         TimeTrigger = GetComponent<TimeTrigger>();
-        
-        //TimeTrigger.addTrigger(5f,()=> {x += 5;});
     }
 
 
@@ -120,13 +118,7 @@ public class MainControl : MonoBehaviour
         else if (Input.GetKey(KeyCode.RightArrow)) { controlDirection = INF;  } //PlayerMoveStart(Vector3.right , controlId,true);  
         
         if (Input.GetKey(KeyCode.Space)) { getPlayerByPosition(LIBERO,TEAM_LEFT).GetComponent<PlayerMove>().DoSlide(); } 
-        //controlId.GetComponent<PlayerMove>().DoJump(JUMP_SPIKE);
-        
-       // PlayerMoveToX(FloorX, Players[0]);
-        //if (touchCount <= 2) {
 
-
-        
             
       
         for (int i = 0 ; i < playerNumber; i ++) //플레이어들 전부 순회 플레이어 모든 움직임
@@ -189,6 +181,16 @@ public class MainControl : MonoBehaviour
             }
 
             return Players[0];       
+    }
+    public void playSound(string sound) {
+        GetComponent<SoundControl>().PlaySound(sound);
+    }
+    public void allPlayerFreeze(int surpriseLevel) {
+        for (int i = 0;i < playerNumber ; i ++) {
+            PlayerMove pm = Players[i].GetComponent<PlayerMove>();
+            PlayerSetting ps = Players[i].GetComponent<PlayerSetting>();
+            pm.setMoveDelay(ps.Status.getReactSpeed()*surpriseLevel);
+        }
     }
     private void serveControl(GameObject controlPlayer) {
         PlayerSetting cPset = controlPlayer.GetComponent<PlayerSetting>();
@@ -481,7 +483,7 @@ public class MainControl : MonoBehaviour
                     break;
                     
             case 1: 
-                    delay = UnityEngine.Random.Range(0.0f,1.2f);
+                    delay = UnityEngine.Random.Range(0.0f,0.7f);
                     x = playerMove.getFallingPlaceXbyPlayer(JUMP_TOSS,isFall,delay); // 점프 토스로 계산
                     z = ballPhys.getParabolaZbyX(x);
                     ballTime = getBallTime(x,z);
@@ -495,7 +497,7 @@ public class MainControl : MonoBehaviour
                     y = playerPhys.getLandHead_Y()+ getMaxHeightBySpeed(playerSet.Status.getJump() * jump_type) - delay; 
                     break;
             case 2: 
-                    delay = UnityEngine.Random.Range(0.0f,1.2f);
+                    delay = UnityEngine.Random.Range(0.0f,0.5f);
                     jump_type = JUMP_SPIKE;
                     x = playerMove.getFallingPlaceXbyPlayer(JUMP_SPIKE,isFall,delay); // 공격
                     z = ballPhys.getParabolaZbyX(x);
@@ -520,7 +522,7 @@ public class MainControl : MonoBehaviour
         else if (team == TEAM_RIGHT) {
             if (x < NET_X) return -INF;
         }
-        playerTime = getPlayerTime(Player , x , z) + playerSet.Status.getReactSpeed();
+        playerTime = getPlayerTime(Player , x , z);
         float score = ballTime - playerTime;
         Debug.Log($"x : {x} , z : {z} , score {score} / given_score {given_score}");
         if (score > given_score) 

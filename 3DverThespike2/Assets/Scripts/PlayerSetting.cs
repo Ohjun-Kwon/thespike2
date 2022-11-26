@@ -34,8 +34,8 @@ public class PlayerSetting : MonoBehaviour
         boxCollider = GetComponent<BoxCollider2D>();
         MainControl = SystemObject.GetComponent<MainControl>();
     }
-    public void playerCreate(float strength, float jump , float speed , float defense){
-        Status = new playerStats(strength,jump,speed,defense);
+    public void playerCreate(float strength, float jump , float speed , float defense,float swingTime = 0.1f , float receiveTime = 0.1f , float tossTime = 0.1f , float reactSpeed = 0.25f ){
+        Status = new playerStats(strength,jump,speed,defense,swingTime,receiveTime,tossTime,UnityEngine.Random.Range(0.5f,2.0f));
     }
     public playerStats getStatus(){
         return Status;

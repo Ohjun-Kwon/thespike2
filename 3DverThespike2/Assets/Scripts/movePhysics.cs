@@ -30,11 +30,11 @@ public class movePhysics : MonoBehaviour
     private float landY;
 
     
-    public Vector3 startPos;
-    public Vector3 endPos;
+    [SerializeField]public Vector3 startPos;
+    [SerializeField]public Vector3 endPos;
     [SerializeField]public MainControl mainControl;
      [SerializeField]private float mainFlow;
-     private float startTime;
+     [SerializeField]private float startTime;
      [SerializeField]public float flightTime;
     private float flightMaxHeight;
     private float Height;
@@ -427,7 +427,7 @@ public class movePhysics : MonoBehaviour
         float disx = x - startPos.x;
         float disy = y - startPos.y;
         float disz = z - startPos.z;
-        startTime = mainFlow - flightTime;
+        //startTime = mainFlow - flightTime;
         startPos.x += disx;
         startPos.y += disy;
         startPos.z += disz;
@@ -439,12 +439,12 @@ public class movePhysics : MonoBehaviour
         moveParabola(startPos,endPos,time-startTime);
     }
     public void changePositionX(float x) {
-        float disx = x - startPos.x;
+        float disx = x - getCurrentPosition().x;
         startPos.x += disx;
         endPos.x += disx;
     }
     public void changePositionZ(float z) {
-        float disz = z - startPos.z;
+        float disz = z - getCurrentPosition().z;
         startPos.z += disz;
         endPos.z += disz;
     }

@@ -4,6 +4,23 @@ using static Constants;
 using playerStatsNameSpace;
 using static PhysCalculate;
 
+public class slideVar
+{
+    public float slideSpeedX;
+    public float slideSpeedZ;
+    public float slideTime;
+    public float slideSpeedXFriction;
+    public float slideSpeedZFriction;   
+
+
+    public void setSlide(float slideSpeedX , float slideSpeedZ , float slideTime){
+        this.slideSpeedX = slideSpeedX;
+        this.slideSpeedZ = slideSpeedZ;
+        slideSpeedXFriction = slideSpeedX*playSpeed / slideTime;
+        slideSpeedZFriction = slideSpeedZ*playSpeed / slideTime;
+    }
+}
+
 public class PlayerMove : MonoBehaviour
 {
     // Start is called before the first frame update
@@ -25,19 +42,14 @@ public class PlayerMove : MonoBehaviour
     private PlayerSetting playerSetting;
     private playerStats Status;
     [SerializeField]public Vector3 goal;
-
-    [SerializeField]private float slideSpeedX;
-    [SerializeField]private float slideSpeedZ;
-    [SerializeField]private float slideTime;
-
-    [SerializeField]private float slideSpeedXFriction;
-    [SerializeField]private float slideSpeedZFriction;    
+ 
     Transform highXTransform;
 
     [SerializeField]public float movingSpeed;
     private BoxCollider boxCollider;      
     private ObjectGravity gravityControl;
     private movePhysics movePhys;
+    private slideVar slideVar;
     private TimeTrigger timeTrigger;
     private float moveDelay = 0.0f;
     
@@ -55,6 +67,7 @@ public class PlayerMove : MonoBehaviour
         movePhys = GetComponent<movePhysics>();
         playerSetting = GetComponent<PlayerSetting>();
         timeTrigger = SystemObject.GetComponent<TimeTrigger>();
+        slideVar = new slideVar();
         //highXTransform = lineX.gameObject.GetComponent<Transform>();
 
         movePhys.initPhysics();
@@ -63,20 +76,22 @@ public class PlayerMove : MonoBehaviour
         Status = GetComponent<PlayerSetting>().getStatus();       
     }
 
-    public void DoSlide() {
-        if (isSlide) return;
+    public bool DoSlide() {
+        if (isSlide) return false;
+        if (!isMoveDelayFree()) return false;
+
+        
         isSlide = true;
         movePhys.setVector(90 - playerSetting.getTeam() *70 ,1.7f);
         movePhys.startParabola();
-        slideSpeedX = movePhys.getHorizontalSpeed();
-        slideSpeedZ = movePhys.getDepthSpeed();
-        slideTime = 3.0f;
-        slideSpeedXFriction = slideSpeedX*playSpeed / slideTime;
-        slideSpeedZFriction = slideSpeedZ*playSpeed / slideTime;
+        float slideTime = 3.0f;
+        slideVar.setSlide(movePhys.getHorizontalSpeed() , movePhys.getDepthSpeed() , slideTime);        
         //슬라이드 시간 이후에 Slide를 끈다.
         timeTrigger.addTrigger(movePhys.getFlightTime() + slideTime,()=> {
             isSlide = false;
+            setMoveDelay(5.0f);
         });
+        return true;
     }
     public void setJumpTime(float x,float _jump_type) {
         
@@ -103,9 +118,9 @@ public class PlayerMove : MonoBehaviour
         }
         if (isSlide) {
             if (movePhys.isParabolaEnd()){
-                movePhys.moveLinear( new Vector3 (slideSpeedX,0f,slideSpeedZ), 1f);
-                slideSpeedX -= slideSpeedXFriction;
-                slideSpeedZ -= slideSpeedZFriction;
+                movePhys.moveLinear( new Vector3 (slideVar.slideSpeedX,0f,slideVar.slideSpeedZ), 1f);
+                slideVar.slideSpeedX -= slideVar.slideSpeedXFriction;
+                slideVar.slideSpeedZ -= slideVar.slideSpeedZFriction;
             }
         }
         if (timeTrigger.getMainTimeFlow() >= jumpTime) { DoJump(jumpType); jumpTime = INF;}
@@ -134,7 +149,7 @@ public class PlayerMove : MonoBehaviour
     
 
     public void setMoveDelay(float md){
-        moveDelay = md;
+        moveDelay += md;
     }
     public float getMoveDelay(){
         return moveDelay;

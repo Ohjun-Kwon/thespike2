@@ -167,6 +167,7 @@ MonoBehaviour:
   endPos: {x: 0, y: 0, z: 0}
   mainControl: {fileID: 0}
   mainFlow: 0
+  startTime: 0
   flightTime: 0
 --- !u!114 &107539772
 MonoBehaviour:
@@ -191,11 +192,6 @@ MonoBehaviour:
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
   goal: {x: 0, y: 0, z: 0}
-  slideSpeedX: 0
-  slideSpeedZ: 0
-  slideTime: 0
-  slideSpeedXFriction: 0
-  slideSpeedZFriction: 0
   movingSpeed: 0
 --- !u!114 &107539773
 MonoBehaviour:
@@ -454,6 +450,7 @@ MonoBehaviour:
   endPos: {x: 0, y: 0, z: 0}
   mainControl: {fileID: 0}
   mainFlow: 0
+  startTime: 0
   flightTime: 0
 --- !u!114 &405833250
 MonoBehaviour:
@@ -478,11 +475,6 @@ MonoBehaviour:
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
   goal: {x: 0, y: 0, z: 0}
-  slideSpeedX: 0
-  slideSpeedZ: 0
-  slideTime: 0
-  slideSpeedXFriction: 0
-  slideSpeedZFriction: 0
   movingSpeed: 0
 --- !u!114 &405833251
 MonoBehaviour:
@@ -741,6 +733,8 @@ GameObject:
   - component: {fileID: 522494167}
   - component: {fileID: 522494168}
   - component: {fileID: 522494169}
+  - component: {fileID: 522494171}
+  - component: {fileID: 522494170}
   m_Layer: 0
   m_Name: System
   m_TagString: System
@@ -822,6 +816,120 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d26865b147a6014fb1e92d62e765c57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &522494170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 522494165}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f4d04721474bf647af8689423e72331, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audioSpike: {fileID: 8300000, guid: 9c4eefc3abae5bb4ea839410dc863375, type: 3}
+  audioReceive: {fileID: 8300000, guid: d0ec06c3b231f7a4c841889ea82b9a67, type: 3}
+  audioToss: {fileID: 8300000, guid: e919063f35cda9d48a0305a1f57db4ca, type: 3}
+  audioNet: {fileID: 8300000, guid: 0ba30fbaa8627414ba5e369fe66665f8, type: 3}
+  audioServe: {fileID: 8300000, guid: 9c4e7f7ef19a432438fab32929d24d9f, type: 3}
+  audioLand: {fileID: 8300000, guid: acf96dc959d9ab5409f57d98ebd50bb5, type: 3}
+--- !u!82 &522494171
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 522494165}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -1193,6 +1301,7 @@ MonoBehaviour:
   endPos: {x: 0, y: 0, z: 0}
   mainControl: {fileID: 0}
   mainFlow: 0
+  startTime: 0
   flightTime: 0
 --- !u!114 &961127456
 MonoBehaviour:
@@ -1217,11 +1326,6 @@ MonoBehaviour:
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
   goal: {x: 0, y: 0, z: 0}
-  slideSpeedX: 0
-  slideSpeedZ: 0
-  slideTime: 0
-  slideSpeedXFriction: 0
-  slideSpeedZFriction: 0
   movingSpeed: 0
 --- !u!114 &961127457
 MonoBehaviour:
@@ -1461,6 +1565,7 @@ MonoBehaviour:
   endPos: {x: 0, y: 0, z: 0}
   mainControl: {fileID: 0}
   mainFlow: 0
+  startTime: 0
   flightTime: 0
 --- !u!114 &1043825058
 MonoBehaviour:
@@ -1485,11 +1590,6 @@ MonoBehaviour:
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
   goal: {x: 0, y: 0, z: 0}
-  slideSpeedX: 0
-  slideSpeedZ: 0
-  slideTime: 0
-  slideSpeedXFriction: 0
-  slideSpeedZFriction: 0
   movingSpeed: 0
 --- !u!114 &1043825059
 MonoBehaviour:
@@ -2043,11 +2143,6 @@ MonoBehaviour:
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
   goal: {x: 0, y: 0, z: 0}
-  slideSpeedX: 0
-  slideSpeedZ: 0
-  slideTime: 0
-  slideSpeedXFriction: 0
-  slideSpeedZFriction: 0
   movingSpeed: 0
 --- !u!114 &1699464263
 MonoBehaviour:
@@ -2070,6 +2165,7 @@ MonoBehaviour:
   endPos: {x: 0, y: 0, z: 0}
   mainControl: {fileID: 0}
   mainFlow: 0
+  startTime: 0
   flightTime: 0
 --- !u!114 &1699464264
 MonoBehaviour:
@@ -2128,6 +2224,7 @@ MonoBehaviour:
   endPos: {x: 0, y: 0, z: 0}
   mainControl: {fileID: 0}
   mainFlow: 0
+  startTime: 0
   flightTime: 0
 --- !u!114 &1825636267
 MonoBehaviour:
@@ -2152,11 +2249,6 @@ MonoBehaviour:
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
   goal: {x: 0, y: 0, z: 0}
-  slideSpeedX: 0
-  slideSpeedZ: 0
-  slideTime: 0
-  slideSpeedXFriction: 0
-  slideSpeedZFriction: 0
   movingSpeed: 0
 --- !u!114 &1825636268
 MonoBehaviour:
@@ -2312,6 +2404,7 @@ MonoBehaviour:
   endPos: {x: 0, y: 0, z: 0}
   mainControl: {fileID: 0}
   mainFlow: 0
+  startTime: 0
   flightTime: 0
 --- !u!114 &1852328263
 MonoBehaviour:
@@ -2336,11 +2429,6 @@ MonoBehaviour:
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
   goal: {x: 0, y: 0, z: 0}
-  slideSpeedX: 0
-  slideSpeedZ: 0
-  slideTime: 0
-  slideSpeedXFriction: 0
-  slideSpeedZFriction: 0
   movingSpeed: 0
 --- !u!114 &1852328264
 MonoBehaviour:
@@ -2496,6 +2584,7 @@ MonoBehaviour:
   endPos: {x: 0, y: 0, z: 0}
   mainControl: {fileID: 0}
   mainFlow: 0
+  startTime: 0
   flightTime: 0
 --- !u!114 &1928712383
 MonoBehaviour:
@@ -2520,11 +2609,6 @@ MonoBehaviour:
   SystemObject: {fileID: 522494165}
   Ball: {fileID: 1982906615}
   goal: {x: 0, y: 0, z: 0}
-  slideSpeedX: 0
-  slideSpeedZ: 0
-  slideTime: 0
-  slideSpeedXFriction: 0
-  slideSpeedZFriction: 0
   movingSpeed: 0
 --- !u!114 &1928712384
 MonoBehaviour:
@@ -2774,6 +2858,7 @@ MonoBehaviour:
   endPos: {x: 0, y: 0, z: 0}
   mainControl: {fileID: 0}
   mainFlow: 0
+  startTime: 0
   flightTime: 0
 --- !u!114 &1982906622
 MonoBehaviour:

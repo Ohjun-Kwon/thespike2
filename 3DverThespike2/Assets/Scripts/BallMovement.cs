@@ -53,6 +53,19 @@ public class BallMovement : MonoBehaviour
         hitNetTime = checkHitNet() + timeTrigger.getMainTimeFlow();
         hitFloorTime = movePhys.getFlightTime() + timeTrigger.getMainTimeFlow();
     }
+
+    /// <summary>
+    /// 볼의 움직임 변화가 있을 때마다 호출하는 함수.
+    /// surpriseLevel에 따라 플레이어들의 반응 속도가 결정된다.
+    /// </summary>
+    /// <param name="surpriseLevel"></param>
+    public void ballMovementChange(int surpriseLevel) {
+        MainSetting.setCurrentBallType();
+        MainControl.allPlayerFreeze(surpriseLevel);
+        MainControl.commandPlayerMove();
+        CheckHit();
+        DEBUG_Text();        
+    }
     public void ballReceive(int team) {
         Debug.Log("Do Receive");
 
@@ -68,10 +81,10 @@ public class BallMovement : MonoBehaviour
         MainSetting.setCurrentSituation(SIT_RALLYPLAYING);
         movePhys.startParabola();
         MainControl.addTouchCount(team);
-        MainSetting.setCurrentBallType();
-        MainControl.commandPlayerMove();
-        CheckHit();
-        DEBUG_Text();        
+        MainControl.playSound("RECEIVE");
+        ballMovementChange(1);
+
+        
     }
     public void ballSpike(int team) {
         if (UnityEngine.Random.Range(0,9) < 8) {
@@ -84,10 +97,8 @@ public class BallMovement : MonoBehaviour
         }
         movePhys.startParabola();
         MainControl.addTouchCount(team);
-        MainSetting.setCurrentBallType();
-        MainControl.commandPlayerMove();
-        CheckHit();
-        DEBUG_Text();        
+        MainControl.playSound("SPIKE");
+        ballMovementChange(1);   
     }
 
     public void ballToss(int team) {
@@ -108,10 +119,8 @@ public class BallMovement : MonoBehaviour
         MainSetting.setCurrentSituation(SIT_RALLYPLAYING); 
         movePhys.startParabola();
         MainControl.addTouchCount(team);
-        MainSetting.setCurrentBallType();
-        MainControl.commandPlayerMove();
-        CheckHit();
-        DEBUG_Text();        
+        //MainControl.playSound("TOSS");
+        ballMovementChange(1);
     }    
 
     public void ballServe(float dir, float spd) {
@@ -124,11 +133,14 @@ public class BallMovement : MonoBehaviour
             MainControl.commandPlayerMove();
             CheckHit();
             DEBUG_Text();
+            MainControl.playSound("SERVE");
+            ballMovementChange(0);
     }
     public void ballHitFloor(){
         Debug.Log("Hit Floor");
         Debug.Log(movePhys.getVerticalFlippedDirection());
         Debug.Log(movePhys.getSpeed()*0.8f);
+        MainControl.playSound("LAND");
         //movePhys.setVector(movePhys.getVerticalFlippedDirection(),Mathf.Abs(movePhys.getSpeed()*0.9f));
         //movePhys.startParabola();
         //MainControl.resetTouchCount();
@@ -140,9 +152,8 @@ public class BallMovement : MonoBehaviour
         else { direction += -30*UnityEngine.Random.Range(0.5f,1.3f);}
         movePhys.setVector(+180.0f,movePhys.getSpeed()*0.3f);
         movePhys.startParabola();
-        MainSetting.setCurrentBallType();
-        MainControl.commandPlayerMove(); 
-        CheckHit();        
+        MainControl.playSound("NET");
+        ballMovementChange(2);
     }
 
     /// <summary>

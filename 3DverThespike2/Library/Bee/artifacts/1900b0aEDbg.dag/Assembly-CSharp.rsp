@@ -360,6 +360,7 @@
 "Assets/Scripts/PlayerMove.cs"
 "Assets/Scripts/PlayerSetting.cs"
 "Assets/Scripts/PlayerStats.cs"
+"Assets/Scripts/SoundControl.cs"
 "Assets/Scripts/TimeTrigger.cs"
 -langversion:9.0
 
