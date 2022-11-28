@@ -7,7 +7,7 @@ public static class Constants
 
     public const float Pi = 3.141592f;
     public const float NET_X = 0.0f;
-    public const float NET_Y = 3.0f;
+    public const float NET_Y = 3.5f;
     public const int playerNumber = 8;
 
     public const int SPIKER = 3;
@@ -32,21 +32,30 @@ public static class Constants
     public const float FARFRONT = 4.0f;
     public const float MIDFRONT = 3.0f;
     public const float NEARFRONT = 1.0f;
+    public const float NEARLIMIT = 0.65f;
 
     public const float LEFT_LIMIT = NET_X - 0.5f;
     public const float RIGHT_LIMIT = NET_X + 0.5f;
 
+
     public const int STRATEGY_QUICK = 0;
     public const int STRATEGY_OPEN = 1;
-    
+    public const int STRATEGY_TWOATTACK = 2;
+    public const int STRATEGY_DIRECTATTACK = 3;
+    public const int STRATEGY_CHANCE = 4;    
+    public const int STRATEGY_RESET = 5;
+
+    public const int NOBLOCK_Z = -10000;
+    public const int NOMOVE_Z = 10000;
+
 
     public const int LEFT = 0;
     public const int CENTER = 1;
     public const int RIGHT = 2;
 
-    public const float Z_RIGHT = -0.6f;
+    public const float Z_RIGHT = -0.7f;
     public const float Z_CENTER = 0.0f;
-    public const float Z_LEFT = 0.6f;
+    public const float Z_LEFT = 0.7f;
 
 
     public const float INF = 999999f;

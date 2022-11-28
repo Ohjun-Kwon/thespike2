@@ -169,13 +169,11 @@ public class movePhysics : MonoBehaviour
         if (hs == 0.0f) return 90.0f;
 
         float curDir = Mathf.Atan(vs / hs) * (180 / Constants.Pi);
-        Debug.Log($"nowDir : {curDir}");
-        if (curDir < 0)
-            curDir += 360;
-        else
-            curDir += 180;
 
-        Debug.Log($"nowDir2 : {curDir}");
+        if (hs < 0) curDir += 180f;
+        if (hs < 0) curDir += 180f;
+
+        curDir = (curDir + 360f)%360f;
         return curDir;    
     }
     public float getSpeed(){

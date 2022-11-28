@@ -87,20 +87,22 @@ public class BallMovement : MonoBehaviour
         
     }
     public void ballSpike(int team) {
+        int spike = 3;
         if (UnityEngine.Random.Range(0,9) < 7) {
-            movePhys.setVectorByVspeedSpike(NET_X + team * (- 1.5f - UnityEngine.Random.Range(5.0f,12.0f)),movePhys.getLandBody_Y(),UnityEngine.Random.Range(1.1f,2f));
+            movePhys.setVectorByVspeedSpike(NET_X + team * (- 1.5f - UnityEngine.Random.Range(5.0f,12.0f)),movePhys.getLandBody_Y(),UnityEngine.Random.Range(1.1f,3f));
             movePhys.setZDirection(UnityEngine.Random.Range(0,3));
             MainControl.playSound("SPIKE");
+            spike = 1;
         }
         else {
             movePhys.setVectorByVspeedParabola(NET_X + team * (- 3.05f),NET_Y,UnityEngine.Random.Range(0.3f,0.8f));
             movePhys.setZDirection(UnityEngine.Random.Range(0,3));
             MainControl.playSound("TOSS");
+            
         }
         movePhys.startParabola();
         MainControl.addTouchCount(team);
-        
-        ballMovementChange(1);   
+        ballMovementChange(spike);   
     }
 
     public void ballToss(int team) {
@@ -116,6 +118,11 @@ public class BallMovement : MonoBehaviour
         else{ 
             movePhys.setVectorByVspeedParabola(NET_X + team * (-1.5f + UnityEngine.Random.Range(0.0f,7.0f)),NET_Y,0.75f + UnityEngine.Random.Range(1.1f,2f));
             movePhys.setZDirection(Constants.CENTER);
+            if (UnityEngine.Random.Range(0,4) < 2) 
+                movePhys.setZDirection(LEFT);
+            if (UnityEngine.Random.Range(0,4) < 2) 
+                movePhys.setZDirection(RIGHT);
+            
             MainControl.setCurrentSituation(STRATEGY_OPEN);
         }
         MainSetting.setCurrentSituation(SIT_RALLYPLAYING); 
@@ -125,6 +132,7 @@ public class BallMovement : MonoBehaviour
         ballMovementChange(1);
     }    
 
+    
     public void ballServe(float dir, float spd) {
             movePhys.setVector(dir,spd);
             movePhys.setZDirection(Constants.CENTER);
@@ -136,7 +144,7 @@ public class BallMovement : MonoBehaviour
             CheckHit();
             DEBUG_Text();
             MainControl.playSound("SERVE");
-            ballMovementChange(0);
+            ballMovementChange(2);
     }
     public void ballHitFloor(){
         Debug.Log("Hit Floor");
@@ -144,18 +152,20 @@ public class BallMovement : MonoBehaviour
         Debug.Log(movePhys.getSpeed()*0.8f);
         MainControl.playSound("LAND");
 
-        float newDir = 360.0f-movePhys.getCurrentDirection();
-        Debug.Log(newDir);
-        movePhys.setVector(newDir,Mathf.Abs(movePhys.getSpeed()*0.9f));
+        float newDir = PhysCalculate.getYFlippedDirection(movePhys.getCurrentDirection());
+        Debug.Log($"new Direction {newDir}");
+        movePhys.setVector(newDir,movePhys.getSpeed()*0.85f);
         movePhys.startParabola();
         MainControl.resetTouchCount();
         CheckHit();
     }
     public void ballHitNet() {
-        float direction = movePhys.getCurrentDirection();
-        if ((direction >= 0 &&  direction < 90) || (direction >= 270 && direction < 359)) { direction += 30*UnityEngine.Random.Range(0.5f,1.3f);}
-        else { direction += -30*UnityEngine.Random.Range(0.5f,1.3f);}
-        movePhys.setVector(+180.0f,movePhys.getSpeed()*0.3f);
+
+//        Debug.Log($"Direction : {movePhys.getCurrentDirection()} , {360f - movePhys.getCurrentDirection()}");
+        float newDir = PhysCalculate.getYFlippedDirection(movePhys.getCurrentDirection());
+        //Debug.Break();
+        //Debug.Log(newDir);
+        movePhys.setVector(newDir,movePhys.getSpeed()*0.3f);
         movePhys.startParabola();
         MainControl.playSound("NET");
         ballMovementChange(2);

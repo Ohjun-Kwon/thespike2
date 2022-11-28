@@ -176,6 +176,9 @@ public class PlayerMove : MonoBehaviour
         float distance = Mathf.Max(Mathf.Abs(x - transform.position.x) , Mathf.Abs(z - transform.position.z));
         float costTime = distance/( Status.getSpeed() * slowSpeed) + getMoveDelay(); // moveDelay도 추가해준다.
 
+
+        if (!movePhys.isParabolaEnd())
+            costTime +=  movePhys.getFlightTime() - movePhys.getCurrentTime();
         if (isOkay) Debug.Log($"costTime : {costTime}");
         if (costTime < (left_time - slack_time)) // 시간 내에 도달 할 수 있으면 true
             return true;
@@ -188,7 +191,7 @@ public class PlayerMove : MonoBehaviour
         float distance = Mathf.Max(Mathf.Abs(x - transform.position.x) , Mathf.Abs(z - transform.position.z));
         float costTime = distance/( Status.getSpeed() * slowSpeed) + getMoveDelay(); // moveDelay도 추가해준다.
 
-        if (!movePhys.isParabolaEnd()) costTime = Mathf.Max(costTime , movePhys.getFlightTime() - movePhys.getCurrentTime()); // 점프 끝나는데 걸리는 시간 중 더 큰건? 
+        if (!movePhys.isParabolaEnd()) costTime += movePhys.getFlightTime() - movePhys.getCurrentTime(); // 점프 끝나는데 걸리는 시간 중 더 큰건? 
         return costTime;
     }
 

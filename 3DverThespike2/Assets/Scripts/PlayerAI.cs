@@ -29,7 +29,7 @@ public class PlayerAI : MonoBehaviour
         MainSetting = SystemObject.GetComponent<MainSetting>();
         PlayerSetting = GetComponent<PlayerSetting>();
     }
-    
+
     public (float x , float z) getPlayerPlace(int touchCount , int rotation){
         
         float zPos , xPos;
@@ -38,6 +38,8 @@ public class PlayerAI : MonoBehaviour
         int rotationPlace = GetComponent<PlayerSetting>().getRotation();
         int now_rot = (rotationPlace + rotation) % 4;
 
+        bool ourBall = MainControl.isBallOur(team);
+        
         (xPos , zPos) = getOriginalPlace(now_rot,team);
         if (MainSetting.getCurrentSituation() == SIT_SERVERGO)
         {
@@ -48,55 +50,83 @@ public class PlayerAI : MonoBehaviour
             return (xPos,zPos);
         }
 
-        switch(MainControl.getTouchCount(team))
-        {
-            case 1: break;
-            case 2: 
-                if (now_rot == 1 || now_rot == 2) xPos = NET_X + team*MIDFRONT;
-                if (now_rot == 0) xPos = NET_X + team*MID;
-                if (now_rot == 3) xPos = NET_X + team*NEARBACK;
-            break;
-            
-            default : 
-                if (now_rot == 1 || now_rot == 2) xPos = NET_X + team*NEARFRONT;
-            break;
+        bool isServe = MainSetting.getCurrentSituation() == SIT_SERVERGO || MainSetting.getCurrentSituation() == SIT_SERVERTOSS || MainSetting.getCurrentSituation() == SIT_SERVERWAIT;
+        bool goBlock = true;
+            if (isServe) {
+                if (MainControl.getNowServer().GetComponent<PlayerSetting>().getTeam() != team) 
+                    goBlock = false;
+            }
+
+        if (ourBall) {
+            if (MainSetting.getCurrentBallType(team) == BALL_ATTACK && goBlock) // 공격 수비
+            {
+                if (isFront(now_rot)) (xPos,zPos) = BlockPosition(team, now_rot,xPos,zPos);
+            }
+            switch(position)
+                {
+                    case Constants.SETTER: (xPos,zPos) = setterMovePosition(team,now_rot,xPos,zPos); break;
+                    case Constants.SPIKER: (xPos,zPos) = spikerMovePosition(team,now_rot,xPos,zPos); break;          
+                    case Constants.BLOCKER: (xPos,zPos) = blockerMovePosition(team,now_rot,xPos,zPos); break;          
+                }
+        }
+        else {
+            if (goBlock) if (isFront(now_rot)) (xPos,zPos) = BlockPosition(team, now_rot,xPos,zPos);
         }
         //로테이션에 따른 기본 위치 정해주기
-
-        switch(position)
-        {
-            case Constants.SETTER: (xPos,zPos) = setterMovePosition(team,now_rot,xPos,zPos); break;
-            case Constants.SPIKER: (xPos,zPos) = spikerMovePosition(team,now_rot,xPos,zPos); break;          
-            case Constants.BLOCKER: (xPos,zPos) = blockerMovePosition(team,now_rot,xPos,zPos); break;          
-        }
-
+  
         //특정 포지션에 따른 기본 위치 정해주기.
         return (xPos,zPos);
     }
+
+
+    private (float xPos,float zPos) BlockPosition(int team , int now_rot,float originalxPos , float originalzPos){
+        float xPos;
+        float zPos;
+        
+        if (PlayerSetting.getBlockFollowZ() == NOBLOCK_Z) { //블록 안해도 될 경우. (상대가 공격을 못 때리는 경우)
+            xPos = originalxPos;
+            zPos = originalzPos;
+        }
+        else if (PlayerSetting.getBlockFollowZ() == NOMOVE_Z) { // 블록을 하되 , 아직 움직이지 않는 경우
+            xPos = NET_X + team*NEARLIMIT;
+            zPos = originalzPos;
+        }
+        else {    
+            xPos = NET_X + team*NEARLIMIT;
+            zPos = PlayerSetting.getBlockFollowZ();
+        }
+        
+        return (xPos,zPos);
+    }
+
+
+
+    /// <summary>
+    /// 플레이어의 로테이션이 전위인지 판단하는 함수
+    /// </summary>
+    /// <param name="now_rot"></param>
+    /// <returns></returns>
+    private bool isFront(int now_rot) {
+        if (now_rot == 1 || now_rot == 2) return true;
+        else return false;
+    }       
     private (float xPos,float zPos) blockerMovePosition(int team, int now_rot , float x ,float z) {
         float xPos = x;
         float zPos = z;
-        if (MainControl.getLastTouchTeam() != team)
-        {
-            if (MainControl.getTouchCount(team) == 0 )
-            {
-                xPos = NET_X + team * MIDBACK;
-            }
-        }
-        if (MainControl.getLastTouchTeam() == team) // 우리팀 볼일 때
-        {
-            if (MainControl.getTouchCount(team) >= 1) {
-                Vector3 target = PlayerSetting.getTarget();
-                xPos = target.x;
-                zPos = target.z;
-            }
-        }
+        
+        if (MainControl.getTouchCount(team) >= 1) {
+            Vector3 target = PlayerSetting.getTarget();
+            xPos = target.x;
+            zPos = target.z;
+        }  
+        
         return (xPos,zPos);
     }    
     private (float xPos,float zPos) setterMovePosition(int team, int now_rot , float x ,float z) {
         float xPos = x;
         float zPos = z;
-        if (MainControl.getTouchCount(team) == 0 && MainControl.getLastTouchTeam() != team) // 우리팀 볼일 때
+        
+        if (MainControl.getTouchCount(team) == 0) // 우리팀 볼일 때
         {
             xPos = NET_X + team * MIDFRONT;
             zPos = 0.0f;

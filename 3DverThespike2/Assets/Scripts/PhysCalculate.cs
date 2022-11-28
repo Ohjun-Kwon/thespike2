@@ -15,4 +15,14 @@ public static class PhysCalculate
             return -Mathf.Sqrt(2 * -H / gravityScale);
     }
 
+    public static float getXFlippedDirection(float _dir) {
+        float dir = 180f - _dir;
+        dir = (dir + 360f) % 360f;
+        return dir;
+    }
+    public static float getYFlippedDirection(float _dir) {
+        float dir = 360f - _dir;
+        dir = (dir + 360f) % 360f;
+        return dir;
+    }
 }    

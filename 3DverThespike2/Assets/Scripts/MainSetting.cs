@@ -11,6 +11,8 @@ public class MainSetting : MonoBehaviour
 {
 
 
+    private int LEFT_rotation  = 0;
+    private int RIGHT_rotation = 0;
     private int gameCurrentSituation;
     private int[] currentBallType = new int[2] {0,0}; // 현재 공의 상태 
     private GameObject[] currentSetter = new GameObject[2] {null, null}; // 이번 상황에서 누가 세터인지
@@ -20,10 +22,33 @@ public class MainSetting : MonoBehaviour
     [SerializeField]public GameObject Ball;
     
     private MainControl MainControl;
+    private int[] attackPoint = new int[2] {0,0};
+    private int[] quickAttackPoint = new int[2] {0,0};
+
+    private int[] block1Strategy = new int[2] {0,0};
+    private int[] block2Strategy = new int[2] {0,0};
+
 
     void Start(){
         gameCurrentSituation = SIT_SERVERGO;
         MainControl = GetComponent<MainControl>();
+    }
+    public int getRotation(int team) {
+        if (team == TEAM_RIGHT) {
+            return RIGHT_rotation;
+        }
+        else    
+            return LEFT_rotation;
+    }
+    public void addRotation(int team,int value) {
+        if (team == TEAM_RIGHT) {
+            RIGHT_rotation += 1;
+            RIGHT_rotation = RIGHT_rotation%4;
+        }
+        else {
+            LEFT_rotation += 1;
+            LEFT_rotation = LEFT_rotation%4;
+        }
     }
     void FixedUpdate() {
     }
@@ -36,6 +61,43 @@ public class MainSetting : MonoBehaviour
         }
         addTeamScoreLog(team);
     }
+
+    public void setAttackPlace(int team,bool isQuick,int place) {
+        if (team == TEAM_LEFT)
+            attackPoint[0] = place;
+        else 
+            attackPoint[1] = place;
+    }
+    public float getAttackPlace(int team,bool isQuick) {
+        if (isQuick){
+            if (team == TEAM_LEFT)
+                return quickAttackPoint[0];
+            else 
+                return quickAttackPoint[1];
+        }
+        else {
+            if (team == TEAM_LEFT)
+                return attackPoint[0];
+            else 
+                return attackPoint[1];
+        }
+    }    
+    public void setBlockStrategy(int _team ,int now_rot,int strategy) {
+        int team = (_team == TEAM_LEFT ? 0 : 1);
+
+        if (now_rot == 1) 
+            block1Strategy[team] = strategy;
+        else 
+            block2Strategy[team] = strategy;
+    }
+    public float getBlockStrategy(int _team ,int now_rot) {
+        int team = (_team == TEAM_LEFT ? 0 : 1);
+        if (now_rot == 1) 
+            return block1Strategy[team];
+        else 
+            return block2Strategy[team];
+    }
+
     public void addTeamScoreLog(int team){
         teamScoreLog.Add(team); // 로그에 추가한다.
     }
@@ -76,6 +138,13 @@ public class MainSetting : MonoBehaviour
         if (gameCurrentSituation == SIT_SERVERHIT) return true;
         return false;
     }
+
+
+    /// <summary>
+    /// 현재 서브하는 상태인지 아닌지 bool type으로 반환
+    /// </summary>
+    /// <returns></returns>
+    
     /// <summary>
     /// 현재 Ball이 어떤지 각 팀의 입장에서 int형 상수값으로 반환해준다. setCurrentBallType에서 설정해주게 된다.
     /// </summary>

@@ -25,17 +25,20 @@ public class PlayerSetting : MonoBehaviour
     [SerializeField] public Vector3 goal;
     private float goalJump;
     private float goalDelay;
+    [SerializeField]private float blockFollowZ; // 블로킹할 때 따라가는 Zㄱ밧.
     
     [SerializeField] public bool checkB; 
     [SerializeField] public float maxH; 
     
+    public MainSetting mainSetting;
     void Start()
     {
         boxCollider = GetComponent<BoxCollider2D>();
         MainControl = SystemObject.GetComponent<MainControl>();
+        mainSetting = SystemObject.GetComponent<MainSetting>();
     }
     public void playerCreate(float strength, float jump , float speed , float defense,float swingTime = 0.1f , float receiveTime = 0.1f , float tossTime = 0.1f , float reactSpeed = 0.25f ){
-        Status = new playerStats(strength,jump,speed,defense,swingTime,receiveTime,tossTime,UnityEngine.Random.Range(0.3f,1.0f));
+        Status = new playerStats(strength,jump,speed,defense,swingTime,receiveTime,tossTime,UnityEngine.Random.Range(0.6f,1.3f));
     }
     public playerStats getStatus(){
         return Status;
@@ -94,7 +97,44 @@ public class PlayerSetting : MonoBehaviour
     public int getTeam(){ return team; }
     public bool isControl() { return control;}
 
+    public float getBlockFollowZ() { return blockFollowZ;}
 
+    public void resetBlockFollowZ() {
+        //도달 안해.
+        blockFollowZ = INF;
+    }
+    public void setBlockFollowZ(float z) {
+        Debug.Log($"z is {z}");
+        if (z != NOBLOCK_Z && z != NOMOVE_Z) {
+            if (z < Z_LEFT*0.5f) z = Z_LEFT;
+            else if (z > Z_RIGHT*0.5f) z = Z_RIGHT;
+            else z = Z_CENTER;
+        }
+        int rotationPlace = mainSetting.getRotation(team);
+        int now_rot = getRotation();
+        
+        now_rot = (now_rot + rotationPlace) %4;
+        if (now_rot == 1) { // RIGHT
+            PlayerSetting otherBlocker = MainControl.getPlayersByRot(getTeam(),2).GetComponent<PlayerSetting>();
+            float otherZ = otherBlocker.getBlockFollowZ();
+
+            if (otherZ == z) {
+                if (z == Z_CENTER) blockFollowZ = Z_RIGHT;
+                else blockFollowZ = Z_CENTER;
+            }
+            else blockFollowZ = z;
+        }
+        else{ 
+            PlayerSetting otherBlocker = MainControl.getPlayersByRot(getTeam(),1).GetComponent<PlayerSetting>();
+            float otherZ = otherBlocker.getBlockFollowZ();
+
+            if (otherZ == z) {
+                if (z == Z_CENTER) blockFollowZ = Z_LEFT;
+                else blockFollowZ = Z_CENTER;
+            }
+            else blockFollowZ = z;
+        }
+    }
     
         
 }
