@@ -7,7 +7,7 @@ public static class Constants
 
     public const float Pi = 3.141592f;
     public const float NET_X = 0.0f;
-    public const float NET_Y = 3.5f;
+    public const float NET_Y = 3.3f;
     public const int playerNumber = 8;
 
     public const int SPIKER = 3;
@@ -53,9 +53,9 @@ public static class Constants
     public const int CENTER = 1;
     public const int RIGHT = 2;
 
-    public const float Z_RIGHT = -0.7f;
+    public const float Z_RIGHT = -0.9f;
     public const float Z_CENTER = 0.0f;
-    public const float Z_LEFT = 0.7f;
+    public const float Z_LEFT = 0.9f;
 
 
     public const float INF = 999999f;
@@ -85,11 +85,12 @@ public static class Constants
     public const int BALL_RECEIVE_BAD_LOW = 12;
     public const int BALL_RECEIVE_BAD_LONG = 13;
     public const int BALL_TOSS = 14;
+    public const int BALL_UNAVAILABLE = 15;
 
 
     //JUMP의 종류를 나타내는 상수
     public const float JUMP_TOSS = 0.8f;
-    public const float JUMP_BLOCK = 0.95f;
+    public const float JUMP_BLOCK = 0.97f;
     public const float JUMP_SPIKE = 1.0f;
     public const float JUMP_NO = 0.0f;
 
@@ -105,7 +106,6 @@ public static class Constants
     public const int ACTION_SPIKEREADY = 258;
     public const int ACTION_SPIKESWING = 259;
     public const int ACTION_SPIKEDONE = 260;
-    public const int ACTION_BLOCK = 261;
     public const int ACTION_TOSSREADY = 262;
     public const int ACTION_JUMPTOSSREADY = 263;
     public const int ACTION_TOSS = 264;
@@ -116,11 +116,13 @@ public static class Constants
     public const int ACTION_SERVEREADY = 269;
     public const int ACTION_SERVETOSS = 270;
     public const int ACTION_SERVEDONE = 271;
+    public const int ACTION_BLOCKJUMP = 272;
+    public const int ACTION_BLOCKDONE = 273;
     
 
-    public static float playSpeed = 0.04f;
+    public static float playSpeed = 0.02f;
     public const float NOVALUE = -90158115.4142f;
 
 
-    public const float gravityScale = 0.5f;
+    public const float gravityScale = 1.2f;
 }

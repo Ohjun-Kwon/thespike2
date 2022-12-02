@@ -8,9 +8,9 @@ public class PlayerAI : MonoBehaviour
 
     //[SerializeField] public GameObject  lineX;
     [SerializeField] public GameObject SystemObject;
-    private MainControl MainControl;
-    private MainSetting MainSetting;
-    private PlayerSetting PlayerSetting;
+    private MainControl mainControl;
+    private MainSetting mainSetting;
+    private PlayerSetting playerSetting;
 
     Transform highXTransform;
 
@@ -25,9 +25,9 @@ public class PlayerAI : MonoBehaviour
         movePhys = GetComponent<movePhysics>();
         boxCollider = GetComponent<BoxCollider>();
         gravityControl = GetComponent<ObjectGravity>();
-        MainControl = SystemObject.GetComponent<MainControl>();
-        MainSetting = SystemObject.GetComponent<MainSetting>();
-        PlayerSetting = GetComponent<PlayerSetting>();
+        mainControl = SystemObject.GetComponent<MainControl>();
+        mainSetting = SystemObject.GetComponent<MainSetting>();
+        playerSetting = GetComponent<PlayerSetting>();
     }
 
     public (float x , float z) getPlayerPlace(int touchCount , int rotation){
@@ -38,39 +38,43 @@ public class PlayerAI : MonoBehaviour
         int rotationPlace = GetComponent<PlayerSetting>().getRotation();
         int now_rot = (rotationPlace + rotation) % 4;
 
-        bool ourBall = MainControl.isBallOur(team);
+        bool ourBall = mainControl.isBallOur(team);
         
         (xPos , zPos) = getOriginalPlace(now_rot,team);
-        if (MainSetting.getCurrentSituation() == SIT_SERVERGO)
+        if (mainSetting.getCurrentSituation() == SIT_SERVERGO)
         {
-            if (gameObject == MainControl.nowServePlayer) {
+            if (gameObject == mainControl.nowServePlayer) {
                 xPos = NET_X + team * SERVERPOS;
                 zPos = Z_CENTER;
             }
             return (xPos,zPos);
         }
 
-        bool isServe = MainSetting.getCurrentSituation() == SIT_SERVERGO || MainSetting.getCurrentSituation() == SIT_SERVERTOSS || MainSetting.getCurrentSituation() == SIT_SERVERWAIT;
+        bool isServe = mainSetting.isNowServe();
         bool goBlock = true;
-            if (isServe) {
-                if (MainControl.getNowServer().GetComponent<PlayerSetting>().getTeam() != team) 
-                    goBlock = false;
-            }
-
+        if (isServe) {
+            if (mainControl.getNowServer().GetComponent<PlayerSetting>().getTeam() != team) 
+                goBlock = false;
+        }
+        if (!isFront(now_rot)) goBlock = false;
+        
         if (ourBall) {
-            if (MainSetting.getCurrentBallType(team) == BALL_ATTACK && goBlock) // 공격 수비
+            if (goBlock || playerSetting.getPlayerAction() == ACTION_BLOCKJUMP) // 공격 수비
             {
-                if (isFront(now_rot)) (xPos,zPos) = BlockPosition(team, now_rot,xPos,zPos);
+                (xPos,zPos) = BlockPosition(team, now_rot,xPos,zPos);
             }
-            switch(position)
+            else {
+                switch(position)
                 {
                     case Constants.SETTER: (xPos,zPos) = setterMovePosition(team,now_rot,xPos,zPos); break;
                     case Constants.SPIKER: (xPos,zPos) = spikerMovePosition(team,now_rot,xPos,zPos); break;          
                     case Constants.BLOCKER: (xPos,zPos) = blockerMovePosition(team,now_rot,xPos,zPos); break;          
                 }
+            }
+            
         }
         else {
-            if (goBlock) if (isFront(now_rot)) (xPos,zPos) = BlockPosition(team, now_rot,xPos,zPos);
+            if (goBlock || playerSetting.getPlayerAction() == ACTION_BLOCKJUMP) if (isFront(now_rot)) (xPos,zPos) = BlockPosition(team, now_rot,xPos,zPos);
         }
         //로테이션에 따른 기본 위치 정해주기
   
@@ -83,17 +87,17 @@ public class PlayerAI : MonoBehaviour
         float xPos;
         float zPos;
         
-        if (PlayerSetting.getBlockFollowZ() == NOBLOCK_Z) { //블록 안해도 될 경우. (상대가 공격을 못 때리는 경우)
+        if (playerSetting.getBlockFollowZ() == NOBLOCK_Z) { //블록 안해도 될 경우. (상대가 공격을 못 때리는 경우)
             xPos = originalxPos;
             zPos = originalzPos;
         }
-        else if (PlayerSetting.getBlockFollowZ() == NOMOVE_Z) { // 블록을 하되 , 아직 움직이지 않는 경우
+        else if (playerSetting.getBlockFollowZ() == NOMOVE_Z) { // 블록을 하되 , 아직 움직이지 않는 경우
             xPos = NET_X + team*NEARLIMIT;
             zPos = originalzPos;
         }
         else {    
             xPos = NET_X + team*NEARLIMIT;
-            zPos = PlayerSetting.getBlockFollowZ();
+            zPos = playerSetting.getBlockFollowZ();
         }
         
         return (xPos,zPos);
@@ -114,8 +118,8 @@ public class PlayerAI : MonoBehaviour
         float xPos = x;
         float zPos = z;
         
-        if (MainControl.getTouchCount(team) >= 1) {
-            Vector3 target = PlayerSetting.getTarget();
+        if (mainControl.getTouchCount(team) >= 1) {
+            Vector3 target = playerSetting.getTarget();
             xPos = target.x;
             zPos = target.z;
         }  
@@ -126,7 +130,7 @@ public class PlayerAI : MonoBehaviour
         float xPos = x;
         float zPos = z;
         
-        if (MainControl.getTouchCount(team) == 0) // 우리팀 볼일 때
+        if (mainControl.getTouchCount(team) == 0) // 우리팀 볼일 때
         {
             xPos = NET_X + team * MIDFRONT;
             zPos = 0.0f;
@@ -137,7 +141,7 @@ public class PlayerAI : MonoBehaviour
         float xPos = x;
         float zPos = z;
         
-        if (MainControl.getTouchCount(team) == 1)
+        if (mainControl.getTouchCount(team) == 1)
         {
             xPos = NET_X + team * MID;
         }
@@ -150,8 +154,14 @@ public class PlayerAI : MonoBehaviour
         0   1   | 2   3
         */
         float zPos = 0 , xPos = 0;
-        if (now_rot <= 1) zPos = Z_RIGHT;
-        else zPos = Z_LEFT;
+
+        if (team == TEAM_LEFT) {
+            if (now_rot <= 1) zPos = Z_RIGHT;
+            else zPos = Z_LEFT;
+        }else {
+            if (now_rot <= 1) zPos = Z_LEFT;
+            else zPos = Z_RIGHT;            
+        }
         
         switch(now_rot)
         {
@@ -177,17 +187,10 @@ public class PlayerAI : MonoBehaviour
     /// <param name="jump_delay"></param>
     /// <param name="isLowBall"></param>
     public void getJumpDataOfSecondBall(ref float jump_type,ref float jump_delay, bool isLowBall) {
-        int team      = PlayerSetting.getTeam();
-        int ball_type = MainSetting.getCurrentBallType(team);
+        int team      = playerSetting.getTeam();
+        int ball_type = mainSetting.getCurrentBallType(team);
         
         jump_type = (isLowBall) ? JUMP_NO : JUMP_TOSS; 
         jump_delay = UnityEngine.Random.Range(0.0f,0.8f);
-    }
-    public void DoReceive() {
-        Debug.Log("Receive");
-    }
-
-    public void DoSpike() {
-        Debug.Log("Spike");
     }
 }

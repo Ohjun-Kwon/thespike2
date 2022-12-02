@@ -21,7 +21,7 @@ public class MainSetting : MonoBehaviour
     private List<int> teamScoreLog = new List<int>();
     [SerializeField]public GameObject Ball;
     
-    private MainControl MainControl;
+    private MainControl mainControl;
     private int[] attackPoint = new int[2] {0,0};
     private int[] quickAttackPoint = new int[2] {0,0};
 
@@ -31,7 +31,7 @@ public class MainSetting : MonoBehaviour
 
     void Start(){
         gameCurrentSituation = SIT_SERVERGO;
-        MainControl = GetComponent<MainControl>();
+        mainControl = GetComponent<MainControl>();
     }
     public int getRotation(int team) {
         if (team == TEAM_RIGHT) {
@@ -177,7 +177,7 @@ public class MainSetting : MonoBehaviour
     public int checkBallTypeSetSetter(int team) {
 
         movePhysics ballPhys = Ball.GetComponent<movePhysics>();
-        int touchCount = MainControl.getTouchCount(team); // 터치 카운트
+        int touchCount = mainControl.getTouchCount(team); // 터치 카운트
 
         bool isPassingCourt = Mathf.Sign(ballPhys.startPos.x - NET_X) != Mathf.Sign(ballPhys.endPos.x - NET_X);
         bool isOverNet = false;
@@ -191,8 +191,8 @@ public class MainSetting : MonoBehaviour
         int setter_id = (team == TEAM_LEFT) ? 1  : 5 ;
         int teamId = (team == TEAM_LEFT) ? 0 : 1;
 
-        movePhysics setterPhys = MainControl.Players[setter_id].GetComponent<movePhysics>();
-        PlayerSetting setterSet = MainControl.Players[setter_id].GetComponent<PlayerSetting>();
+        movePhysics setterPhys = mainControl.Players[setter_id].GetComponent<movePhysics>();
+        PlayerSetting setterSet = mainControl.Players[setter_id].GetComponent<PlayerSetting>();
 
         setterY = setterPhys.getLandBody_Y() + setterPhys.getHeight()*0.5f; // 세터 높이
         setterJumpY = setterY + getMaxHeightBySpeed(setterSet.Status.getJump() * JUMP_TOSS); // 세터 점프 높이
@@ -236,16 +236,19 @@ public class MainSetting : MonoBehaviour
         {
             float setterMaxY = 0.0f; // 세터의 높이가 될 기준점. (점프를 못 할 경우. 할 경우에 따라 달라짐.)
             bool  isLowBall = false; // 낮은 볼인지 판단.
-            if (!checkSetterAvailable(ref setterMaxY , ref isLowBall , MainControl.Players[setter_id]))
+            if (!checkSetterAvailable(ref setterMaxY , ref isLowBall , mainControl.Players[setter_id]))
             {
-                Debug.Log("세터는 못가");
+                mainControl.showDebug("세터는 못가");
                 //만약 도달 못하면..
-                currentSetter[teamId] = MainControl.getNearestPlayer();
+                currentSetter[teamId] = mainControl.getNearestPlayer();
+                if (currentSetter[teamId] == null) return BALL_UNAVAILABLE;
                 if (!checkSetterAvailable(ref setterMaxY , ref isLowBall , currentSetter[teamId])) // 낙하지점에서 가장 근처인 선수 데려와서 재계산. 얘는 안되어도 어쩔 수 없음.
-                    Debug.Log("세터 아닌 놈도 못가");
+                mainControl.showDebug("세터 아닌 놈도 못가");
+                
+                
             }
             else 
-                currentSetter[teamId] = MainControl.Players[setter_id];
+                currentSetter[teamId] = mainControl.Players[setter_id];
                 //currentSetter 필요 없을 경우 추후 제거.
             
             ballXOnSetterY = ballPhys.getParabolaXbyY(setterMaxY,true); // 세터 높이를 지나는 볼의 x좌표
@@ -279,6 +282,10 @@ public class MainSetting : MonoBehaviour
 
 
 
+    public bool isNowServe() {
+        return (getCurrentSituation() == SIT_SERVERGO || getCurrentSituation() == SIT_SERVERTOSS || getCurrentSituation() == SIT_SERVERWAIT);
+    }
+
     /// <summary>
     /// 세터가 도달 가능한지 불가능한지 판단하는 함수.
     /// 단순한 시간 뿐만 아니라 , 볼의 높이를 보고 세터가 점프토스를 하거나 스탠딩 토스를 하는 등의
@@ -296,7 +303,7 @@ public class MainSetting : MonoBehaviour
         PlayerSetting setterSet = setter.GetComponent<PlayerSetting>();
         PlayerMove setterMove = setter.GetComponent<PlayerMove>();
 
-        if (MainControl.getLastTouchPlayer() == setter) return false; // 자신이 마지막으로 터치한 사람일 경우 불가능.
+        if (mainControl.getLastTouchPlayer() == setter) return false; // 자신이 마지막으로 터치한 사람일 경우 불가능.
 
         float setterY = setterPhys.getLandBody_Y() + setterPhys.getHeight()*0.5f + ballPhys.getHeight()*0.5f; // 세터 높이
         float setterJumpY = setterY + getMaxHeightBySpeed(setterSet.Status.getJump() * JUMP_TOSS); // 세터 점프 높이

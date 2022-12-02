@@ -124,27 +124,7 @@ public class PlayerMove : MonoBehaviour
             }
         }
         if (timeTrigger.getMainTimeFlow() >= jumpTime) { DoJump(jumpType); jumpTime = INF;}
-        if (timeTrigger.getMainTimeFlow() >= actionTime){ 
-            actionTime = INF;
-            if ((playerSetting.getPlayerAction() == ACTION_SPIKEREADY) || (playerSetting.getPlayerAction() == ACTION_QUICKREADY)) DoSpike(); 
-            if ((playerSetting.getPlayerAction() == ACTION_TOSSREADY) || (playerSetting.getPlayerAction() == ACTION_JUMPTOSSREADY)) {
-                DoToss();
-            }
-            if ((playerSetting.getPlayerAction() == ACTION_RECEIVEREADY)) { DoReceive();}
 
-            else if (playerSetting.getPlayerAction() == ACTION_SPIKESWING) { 
-                HitSpike();
-                playerSetting.setPlayerAction(ACTION_SPIKEDONE); 
-            }     
-            else if (playerSetting.getPlayerAction() == ACTION_TOSS) { 
-                HitToss();
-                playerSetting.setPlayerAction(ACTION_TOSSDONE); 
-            }     
-            else if (playerSetting.getPlayerAction() == ACTION_RECEIVE) { 
-                HitReceive();
-                playerSetting.setPlayerAction(ACTION_RECEIVEDONE); 
-            }                             
-        }
     }   
     
 
@@ -179,7 +159,6 @@ public class PlayerMove : MonoBehaviour
 
         if (!movePhys.isParabolaEnd())
             costTime +=  movePhys.getFlightTime() - movePhys.getCurrentTime();
-        if (isOkay) Debug.Log($"costTime : {costTime}");
         if (costTime < (left_time - slack_time)) // 시간 내에 도달 할 수 있으면 true
             return true;
         else
@@ -191,7 +170,10 @@ public class PlayerMove : MonoBehaviour
         float distance = Mathf.Max(Mathf.Abs(x - transform.position.x) , Mathf.Abs(z - transform.position.z));
         float costTime = distance/( Status.getSpeed() * slowSpeed) + getMoveDelay(); // moveDelay도 추가해준다.
 
-        if (!movePhys.isParabolaEnd()) costTime += movePhys.getFlightTime() - movePhys.getCurrentTime(); // 점프 끝나는데 걸리는 시간 중 더 큰건? 
+        if (!movePhys.isParabolaEnd()) {
+            Debug.Log($"{playerSetting.getTeam()}, {playerSetting.getPositionName()} {movePhys.getFlightTime() - movePhys.getCurrentTime()} ");
+            costTime += movePhys.getFlightTime() - movePhys.getCurrentTime(); // 점프 끝나는데 걸리는 시간 중 더 큰건? 
+        }
         return costTime;
     }
 
@@ -260,56 +242,92 @@ public class PlayerMove : MonoBehaviour
         }
         
     }
-    public void DoSpike() {
-        float swing_time = GetComponent<PlayerSetting>().getStatus().getSwingTime(); // 스윙 속도는 사람마다 다를 예정.
-        playerSetting.setPlayerAction(ACTION_SPIKESWING); // 스파이크 스윙을 합니다.
-        actionTime = timeTrigger.getMainTimeFlow() + swing_time; // 해당 시간 이후 볼을 직접적으로 때립니다.
+    public void DoSpike(Vector3 goal) {
+        if (goal != mainControl.getGoal()) return;
+        if (playerSetting.getPlayerAction() == ACTION_SPIKEREADY || playerSetting.getPlayerAction() == ACTION_QUICKREADY)
+        {
+            float swing_time = GetComponent<PlayerSetting>().getStatus().getSwingTime(); // 스윙 속도는 사람마다 다를 예정.
+            playerSetting.setPlayerAction(ACTION_SPIKESWING); // 스파이크 스윙을 합니다.
+            timeTrigger.addTrigger(swing_time,()=> { HitSpike(goal); });
+        }
     } 
-    public void DoToss() {
-        float toss_time = GetComponent<PlayerSetting>().getStatus().getTossTime();
-        PlayerSetting playerSetting = GetComponent<PlayerSetting>();
+    public void DoToss(Vector3 goal) {
+        if (goal != mainControl.getGoal()) return;
+        if (playerSetting.getPlayerAction() == ACTION_JUMPTOSSREADY || playerSetting.getPlayerAction() == ACTION_TOSSREADY)
+        {
+            playerSetting.setPlayerAction(ACTION_TOSS); 
+            float toss_time = GetComponent<PlayerSetting>().getStatus().getTossTime();
+            timeTrigger.addTrigger(toss_time,()=> { HitToss(goal); });
+        }
+    } 
+    public void DoReceive(Vector3 goal) {
+        if (playerSetting.getPlayerAction() != ACTION_RECEIVEREADY) return;
+        if (goal != mainControl.getGoal()) return;
 
-        if (playerSetting.getPlayerAction() == ACTION_TOSSREADY) playerSetting.setPlayerAction(ACTION_TOSS); 
-        else playerSetting.setPlayerAction(ACTION_TOSS); 
-        actionTime = timeTrigger.getMainTimeFlow() + toss_time; // 해당 시간 이후 볼을 직접적으로 때립니다.
-    } 
-    public void DoReceive() {
         float receive_time = GetComponent<PlayerSetting>().getStatus().getReceiveTime();
-        PlayerSetting playerSetting = GetComponent<PlayerSetting>();
         playerSetting.setPlayerAction(ACTION_RECEIVE);
-        actionTime = timeTrigger.getMainTimeFlow() + receive_time; // 해당 시간 이후 볼을 직접적으로 때립니다..
+        timeTrigger.addTrigger(receive_time,()=> {
+            HitReceive(goal);
+        });
     }     
 
-    public void HitToss() {
-        bool isCollider = isInBox(mainControl.getGoal() , Ball.GetComponent<movePhysics>().getHeight());
-        if (isCollider) { // 내가 그 때리는 사람이라면.
-            setMoveDelay(5.0f);
-            playerSetting.setPlayerAction(ACTION_TOSSDONE);                    
-            mainControl.setLastTouch(gameObject);
-            mainControl.Ball.GetComponent<BallMovement>().ballToss(playerSetting.getTeam());
-        }
-    } 
-    public void HitReceive() {
-        bool isCollider = isInBox(mainControl.getGoal() , Ball.GetComponent<movePhysics>().getHeight());
-        if (isCollider) { // 내가 그 때리는 사람이라면.
-            Ball.transform.position = mainControl.getGoal();
+    public void HitToss(Vector3 goal) {
+        if (playerSetting.getPlayerAction() != ACTION_TOSS) return;
+        if (goal != mainControl.getGoal()) return;
+        bool isCollider = isInBox(goal, Ball.GetComponent<movePhysics>().getHeight());
+        if (!isCollider) return;
 
-            setMoveDelay(5.0f);
-            playerSetting.setPlayerAction(ACTION_RECEIVEDONE);
-            mainControl.setLastTouch(gameObject);
-            mainControl.Ball.GetComponent<BallMovement>().ballReceive(playerSetting.getTeam());
-        }
+        setMoveDelay(5.0f);
+        playerSetting.setPlayerAction(ACTION_TOSSDONE);                    
+        mainControl.setLastTouch(gameObject);
+        Ball.transform.position = goal;
+        mainControl.Ball.GetComponent<BallMovement>().ballToss(playerSetting.getTeam());
+
+    } 
+    public void HitReceive(Vector3 goal) {
+        if (playerSetting.getPlayerAction() != ACTION_RECEIVE) return;
+        if (goal != mainControl.getGoal()) return;
+        bool isCollider = isInBox(goal , Ball.GetComponent<movePhysics>().getHeight());
+        if (!isCollider) return;
+        
+        
+        setMoveDelay(5.0f);
+        playerSetting.setPlayerAction(ACTION_RECEIVEDONE);
+        mainControl.setLastTouch(gameObject);
+        Ball.transform.position = goal;
+        mainControl.Ball.GetComponent<BallMovement>().ballReceive(playerSetting.getTeam());
+        
     }     
     // 스파이크를 때리는 것
-    public void HitSpike() {
-        bool isCollider = isInBox(mainControl.getGoal() , Ball.GetComponent<movePhysics>().getHeight());
-        if (isCollider) { // 내가 그 때리는 사람이라면.
-            setMoveDelay(5.0f); // 움직임 딜레이 
-            playerSetting.setPlayerAction(ACTION_SPIKEDONE);   
+    public void HitSpike(Vector3 goal) {
+        if (playerSetting.getPlayerAction() != ACTION_SPIKESWING) return;
+        if (goal != mainControl.getGoal()) return;
+
+        mainControl.showDebug("Do SPike~",1);
+        bool isCollider = isInBox(goal , Ball.GetComponent<movePhysics>().getHeight());
+        if (!isCollider) return;
+        mainControl.showDebug("Hello~~",1);
+        setMoveDelay(5.0f); // 움직임 딜레이 
+        playerSetting.setPlayerAction(ACTION_SPIKEDONE);   
+        mainControl.setLastTouch(gameObject);        
+        Ball.transform.position = goal;
+        mainControl.Ball.GetComponent<BallMovement>().ballSpike(playerSetting.getTeam());
+        mainControl.showDebug("Spike!");
+        
+    }
+    public void HitBlock(Vector3 ballPos , Vector3 goal) {
+        if (goal != mainControl.getGoal()) return; // 볼의 움직임이 만약 달라졌다면.
+        if (playerSetting.getPlayerAction() != ACTION_BLOCKJUMP) return; // 블로킹 상태가 아니라면.
+
+        bool isCollider = isInBox(ballPos,Ball.GetComponent<movePhysics>().getHeight());
+
+        if (isCollider) {
+            setMoveDelay(10.0f); // 움직임 딜레이 
+            playerSetting.setPlayerAction(ACTION_BLOCKDONE);   
             mainControl.setLastTouch(gameObject);        
-            mainControl.Ball.GetComponent<BallMovement>().ballSpike(playerSetting.getTeam());
-            Debug.Log("Spike!");
-        }
+            mainControl.Ball.GetComponent<BallMovement>().ballBlock(playerSetting.getTeam());
+            mainControl.showDebug("Block!!");
+        }      
     }
 
     /// <summary>
@@ -326,9 +344,25 @@ public class PlayerMove : MonoBehaviour
         if (pos.z - size /2 <= myPos.z + mySize.z / 2)
         if (pos.z + size /2 >= myPos.z - mySize.z / 2)
             return true;
-        
         return false;
     }
-
+    /// <summary>
+    /// 정해준 특정 좌표에 있을 때 내 범위에 있는지 판단하는 함수.
+    /// </summary>
+    /// <param name="myPos"></param>
+    /// <param name="pos"></param>
+    /// <param name="size"></param>
+    /// <returns></returns>
+    public bool isInBoxOnPos(Vector3 myPos,Vector3 pos ,float size) {
+        Vector3 mySize = boxCollider.bounds.size;
+        if (pos.x - size/2 <= myPos.x + mySize.x / 2)
+        if (pos.x + size/2 >= myPos.x - mySize.x / 2)
+        if (pos.y - size /2 <= myPos.y + mySize.y / 2)
+        if (pos.y + size /2 >= myPos.y - mySize.y / 2)
+        if (pos.z - size /2 <= myPos.z + mySize.z / 2)
+        if (pos.z + size /2 >= myPos.z - mySize.z / 2)
+            return true;
+        return false;
+    }
 }
 

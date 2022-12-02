@@ -104,7 +104,6 @@ public class movePhysics : MonoBehaviour
         depthSpeed = 0.0f;
         startParabola();
     }
-
     /// <summary>
     /// 시작->끝 , 시간에 따른 좌표를 정해줘.
     /// </summary>
@@ -140,8 +139,10 @@ public class movePhysics : MonoBehaviour
         mid.y = start.y  + (mid.x - start.x)*(verticalSpeed / horizontalSpeed ) - 0.5f*gravityScale*Mathf.Pow( (mid.x - start.x) / horizontalSpeed, 2);
         return new Vector3(mid.x , mid.y , mid.z);                    
     }
-    public Vector3 getParabolaByTime(Vector3 start ,Vector3 end , float time) {
+    public Vector3 getParabolaByTime( float time) {
         var t = time / flightTime;
+        Vector3 start = startPos;
+        Vector3 end = endPos;
         var mid = Vector3.Lerp(start, end ,t);
         mid.y = start.y + (mid.x - start.x)*(verticalSpeed / horizontalSpeed ) - 0.5f*gravityScale*Mathf.Pow( (mid.x - start.x) / horizontalSpeed, 2);
         return new Vector3(mid.x , mid.y , mid.z);
@@ -153,35 +154,40 @@ public class movePhysics : MonoBehaviour
     }
     public void setVector(float Dir , float Spd) {
         direction = Dir * (Constants.Pi/180);  // 라디안 각 변환
-        horizontalSpeed = Spd * Mathf.Cos(direction);
-        verticalSpeed   = Spd * Mathf.Sin(direction);
 
-
-        horizontalSpeed = Mathf.Max(0.001f , Mathf.Abs(horizontalSpeed)) * Mathf.Sign(horizontalSpeed); // 가로속도가 0이면 , 1/  0이되어 ㅈ되는 경우가 많음. 그래서 최솟값으로 설정.
+        setHorizontal(Spd * Mathf.Cos(direction));
+        verticalSpeed = Spd * Mathf.Sin(direction);
         return;
     }
     public float getCurrentDirection(){
         Vector3 curPos = getPositionByTime(getCurrentTime());
-        Vector3 pastPos = getPositionByTime(0.0f);
+        Vector3 pastPos = getPositionByTime(Mathf.Max( 0f ,getCurrentTime() - playSpeed));
 
-        float hs = curPos.x - pastPos.x;
-        float vs = curPos.y - pastPos.y;
-        if (hs == 0.0f) return 90.0f;
-
+        float hs = (curPos.x - pastPos.x)*100f;
+        float vs = (curPos.y - pastPos.y)*100f; // 값이 너무 작으면 Atan에서 인식을 못함. 
+        return getDirectionByVSHS(vs,hs);
+    }
+    public float getDirectionByVSHS(float vs , float hs) {
+        hs = Mathf.Max(0.001f , Mathf.Abs(horizontalSpeed)) * Mathf.Sign(horizontalSpeed);        
         float curDir = Mathf.Atan(vs / hs) * (180 / Constants.Pi);
 
-        if (hs < 0) curDir += 180f;
-        if (hs < 0) curDir += 180f;
-
-        curDir = (curDir + 360f)%360f;
-        return curDir;    
+        if (hs < 0 && vs > 0) curDir += 180;
+        if (vs < 0 && hs < 0) curDir += 180;
+        return curDir = (curDir + 360f)%360f;
     }
     public float getSpeed(){
         //verticalSpeed는 시작 속도이다.
-        if (horizontalSpeed == 0.0f) return 0.0f;
+        if (horizontalSpeed == 0.0f) return verticalSpeed;
         var dir = Mathf.Atan(verticalSpeed / horizontalSpeed);
-        return verticalSpeed / Mathf.Sin(dir);
+        return Mathf.Abs(verticalSpeed / Mathf.Sin(dir));
     }
+    public float getCurrentSpeed(){
+        //verticalSpeed는 시작 속도이다.
+        Vector3 curPos = getPositionByTime(getCurrentTime());
+        Vector3 pastPos = getPositionByTime(getCurrentTime() - playSpeed);
+
+        return Mathf.Sqrt(Mathf.Pow((curPos.x - pastPos.x)/playSpeed , 2) +Mathf.Pow((curPos.y - pastPos.y)/playSpeed , 2));
+    }    
     public void setZDirection(int place){
         float nowZ = getZ();
         float targetZ = 0.0f;
@@ -194,6 +200,9 @@ public class movePhysics : MonoBehaviour
         depthSpeed = (targetZ - nowZ) / getFlightTime();
         return;
     }
+    public float getSpeedByVSHS(float vs, float hs) {
+        return Mathf.Sqrt(Mathf.Pow(vs,2)+ Mathf.Pow(hs,2));
+    }
     public void setVectorByHighestY(float desX, float desY, float dY){
         Vector3 curPos = getCurrentPosition();
         var highestY = curPos.y + dY;
@@ -203,16 +212,15 @@ public class movePhysics : MonoBehaviour
         float t = Mathf.Sqrt(2*H/gravityScale) + Mathf.Sqrt(2*h/gravityScale);
 
         if (highestY < desY) {
-            Debug.Log("Error on setVectorByHighestY ");
+            mainControl.showDebug("Error on setVectorByHighestY ");
             return;
         }
         verticalSpeed = Mathf.Sqrt(2*gravityScale*h);
-        horizontalSpeed = dx /  t ;
-
-        direction = Mathf.Atan(verticalSpeed / horizontalSpeed);
-        speed = verticalSpeed / Mathf.Sin(direction);
+        setHorizontal(dx/t);
+        direction = getDirectionByVSHS(verticalSpeed,horizontalSpeed);
+        speed = getSpeedByVSHS(verticalSpeed,horizontalSpeed);
         
-        setVector(direction * 180 / (Constants.Pi),speed);
+        setVector(direction ,speed);
     }
     public void setVectorForQuickAttack(float desX , float desY , float desZ ,float time)
     {
@@ -223,13 +231,15 @@ public class movePhysics : MonoBehaviour
         var dy =  desY - curPos.y;
         var dz = desZ - curPos.z;
 
-        horizontalSpeed = dx/time;
+        setHorizontal(dx/time);
         verticalSpeed = dy/time + gravityScale*time/2;
         depthSpeed = dz/time;
-        direction = Mathf.Atan(verticalSpeed / horizontalSpeed);
-        horizontalSpeed = Mathf.Max(0.001f , Mathf.Abs(horizontalSpeed)) * Mathf.Sign(horizontalSpeed);
-
+        direction = getDirectionByVSHS(verticalSpeed,horizontalSpeed);// Mathf.Atan(verticalSpeed / horizontalSpeed);
         return;
+    }
+    public void setHorizontal(float spd) {
+        horizontalSpeed = spd;
+        horizontalSpeed = Mathf.Max(0.001f , Mathf.Abs(horizontalSpeed)) * Mathf.Sign(horizontalSpeed); // 가로속도가 0이면 , 1/  0이되어 ㅈ되는 경우가 많음. 그래서 최솟값으로 설정
     }
     public void setVectorByVspeedParabola(float desX, float desY, float vspeed){ 
         // 포물선을 그리는 궤도로 목표 좌표까지 이동시키는 속도.
@@ -244,16 +254,15 @@ public class movePhysics : MonoBehaviour
 
         if (highestY < desY) {
             // 최대 높이까지 올라갔음에도, 목표 y값보다 작아질 경우, 계산이 불가하다.
-            Debug.Log("Error on setVectorByVspeedParabola. ");
             return;
         }
         float t = Mathf.Sqrt(2*H/gravityScale) + Mathf.Sqrt(2*h/gravityScale);
 
         verticalSpeed = vspeed;
         horizontalSpeed = dx /  t ;
-        direction = Mathf.Atan(verticalSpeed / horizontalSpeed);
-        speed = verticalSpeed / Mathf.Sin(direction);
-        setVector(direction * 180 / (Constants.Pi),speed);
+        direction = getDirectionByVSHS(verticalSpeed,horizontalSpeed);
+        speed = getSpeedByVSHS(verticalSpeed,horizontalSpeed);
+        setVector(direction,speed);
     }
     public void setVectorByVspeedSpike(float desX, float desY , float vspeed){ 
         // 포물선을 안그리고 바로 내려 찍는 궤도
@@ -264,10 +273,12 @@ public class movePhysics : MonoBehaviour
 
         var t = (-vspeed  + Mathf.Sqrt(Mathf.Pow(vspeed , 2) + 2 * h * gravityScale)) / gravityScale;
         horizontalSpeed = distance / t;
-
-        direction = Mathf.Atan(verticalSpeed / horizontalSpeed);
-        speed = verticalSpeed / Mathf.Sin(direction);
-        setVector(direction * 180 / (Constants.Pi),speed);
+        Debug.Log($"horizontalSpeed {horizontalSpeed}");
+        Debug.Log($"Time{t}");
+        direction = getDirectionByVSHS(verticalSpeed,horizontalSpeed);
+        speed = getSpeedByVSHS(verticalSpeed,horizontalSpeed);
+        Debug.Log($"direction {direction} speed {speed}");
+        setVector(direction ,speed);
     }
 
     public void moveLinear(Vector3 Direction , float Speed ) {
@@ -301,19 +312,8 @@ public class movePhysics : MonoBehaviour
     }
     public float getFlightTime(){        
         float T;
-        if (verticalSpeed > 0) // 속도가 위를 향할 때
-        {
-            T = ( verticalSpeed/gravityScale ) + Mathf.Sqrt( 2 * flightMaxHeight / gravityScale ); // 낙하하는 데 걸리는 시간    
-        }
-        else // 속도가 아래를 향할 때,
-        {
-            float A,B,C;
-            A = gravityScale;
-            B = -2*verticalSpeed;
-            C = -2*(startPos.y - landY);
-            T = -B + Mathf.Sqrt(Mathf.Pow(B,2) - 4*A*C)/(2*A); 
-        }
-
+        T = ( verticalSpeed/gravityScale ) + Mathf.Sqrt( 2 * flightMaxHeight / gravityScale ); // 낙하하는 데 걸리는 시간    
+        
         return T;
     }
     public float getHighestFlightTime(){
@@ -379,7 +379,7 @@ public class movePhysics : MonoBehaviour
         
             var val = Mathf.Pow(B, 2) -4*A*C;
             if ( float.IsNaN(secondX) ||  float.IsNaN(firstX)) {
-                //Debug.Log($"Error! : {endPos.x} , secondX : {secondX} , firstX : {firstX} , verticalSpeed : {verticalSpeed} , Direction : {direction}");
+                //mainControl.showDebug($"Error! : {endPos.x} , secondX : {secondX} , firstX : {firstX} , verticalSpeed : {verticalSpeed} , Direction : {direction}");
                 return float.NaN;
             }
             var returnValue = 0.0f;
@@ -410,7 +410,6 @@ public class movePhysics : MonoBehaviour
                 firstX = -B/(2.0f*A);
                 secondX = -B/(2.0f*A);
                 MaxY = (1/4) * Mathf.Pow(B,2) / A + start.y;
-                Debug.Log(MaxY);
             }
             var returnValue = 0.0f;
             if (isSecondValue) // 내려올 때의 x좌표를 구한다면

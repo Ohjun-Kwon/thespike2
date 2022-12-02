@@ -787,12 +787,14 @@ MonoBehaviour:
   DELAY: 0
   goal: {x: 0, y: 0, z: 0}
   goalBall: {fileID: 1237539286}
+  showSpecialDebug: 1
   followingPlayer: {fileID: 1699464256}
   nowServePlayer: {fileID: 0}
   touchCount: 0000000000000000
   mbY: 0
   quickTime: 0
   currentSituation: 0
+  dontmove: 0
   ballTeamTEXT: {fileID: 711810249}
   blockWhoTEXT: {fileID: 1399636768}
 --- !u!114 &522494168
@@ -834,12 +836,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   audioSpike: {fileID: 8300000, guid: 9c4eefc3abae5bb4ea839410dc863375, type: 3}
   audioReceive2: {fileID: 8300000, guid: acf96dc959d9ab5409f57d98ebd50bb5, type: 3}
-  audioSpike2: {fileID: 8300000, guid: 8ec0502976d649247a5a0af6c21d3bca, type: 3}
+  audioSpike2: {fileID: 8300000, guid: d3dd317293a53d04fafcc916242950a5, type: 3}
+  audioBlock: {fileID: 8300000, guid: d3dd317293a53d04fafcc916242950a5, type: 3}
   audioFoot1: {fileID: 8300000, guid: 89f08c00a2b8d0e498b8ee54a26d8bf0, type: 3}
   audioFoot2: {fileID: 8300000, guid: 3504d9e67bd59494e911c5b72b4ac588, type: 3}
   audioFoot3: {fileID: 8300000, guid: e69141994f77a8240a535fde08b5c139, type: 3}
   audioFoot4: {fileID: 8300000, guid: e361651c9d73df143a4ac375de1d0593, type: 3}
   audioFoot5: {fileID: 8300000, guid: 5d3fe34166b15fc4eb01b301a556fc96, type: 3}
+  audioFoot6: {fileID: 8300000, guid: e69141994f77a8240a535fde08b5c139, type: 3}
   audioReceive: {fileID: 8300000, guid: d0ec06c3b231f7a4c841889ea82b9a67, type: 3}
   audioToss: {fileID: 8300000, guid: e919063f35cda9d48a0305a1f57db4ca, type: 3}
   audioNet: {fileID: 8300000, guid: 0ba30fbaa8627414ba5e369fe66665f8, type: 3}
@@ -3035,6 +3039,7 @@ MonoBehaviour:
   touchCountTEXT2: {fileID: 473574575}
   hitNetTime: 999999
   hitFloorTime: 999999
+  hitNetVector: {x: 0, y: 0, z: 0}
   timeTrigger: {fileID: 0}
 --- !u!65 &1982906623
 BoxCollider:
@@ -3139,8 +3144,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2128833384}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.75, z: -0.18}
-  m_LocalScale: {x: 0.1, y: 3.5, z: 5}
+  m_LocalPosition: {x: 0, y: 1.65, z: -0.18}
+  m_LocalScale: {x: 0.1, y: 3.3, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}

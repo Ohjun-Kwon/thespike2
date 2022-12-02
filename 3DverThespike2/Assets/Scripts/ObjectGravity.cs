@@ -4,7 +4,7 @@ using static Constants;
 
 public class ObjectGravity : MonoBehaviour
 {
-    [SerializeField]public float gravityScale = 0.05f;
+    //[SerializeField]public float gravityScale = 0.05f;
     [SerializeField]private LayerMask groundLayer;
     [SerializeField]private float elasticity;
 

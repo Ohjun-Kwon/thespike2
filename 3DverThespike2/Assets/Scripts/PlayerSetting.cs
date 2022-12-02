@@ -10,7 +10,7 @@ public class PlayerSetting : MonoBehaviour
 {
 
     [SerializeField] public GameObject SystemObject;
-    private MainControl MainControl;
+    private MainControl mainControl;
     private int position;
      [SerializeField] public string positionName;
     private int rotationPlace;
@@ -34,11 +34,11 @@ public class PlayerSetting : MonoBehaviour
     void Start()
     {
         boxCollider = GetComponent<BoxCollider2D>();
-        MainControl = SystemObject.GetComponent<MainControl>();
+        mainControl = SystemObject.GetComponent<MainControl>();
         mainSetting = SystemObject.GetComponent<MainSetting>();
     }
     public void playerCreate(float strength, float jump , float speed , float defense,float swingTime = 0.1f , float receiveTime = 0.1f , float tossTime = 0.1f , float reactSpeed = 0.25f ){
-        Status = new playerStats(strength,jump,speed,defense,swingTime,receiveTime,tossTime,UnityEngine.Random.Range(0.6f,1.3f));
+        Status = new playerStats(strength,jump,speed,defense,swingTime,receiveTime,tossTime,UnityEngine.Random.Range(0.2f,0.5f)*0f);
     }
     public playerStats getStatus(){
         return Status;
@@ -46,7 +46,7 @@ public class PlayerSetting : MonoBehaviour
 
     /// <summary>
     /// 속공의 x,y,z값을 정한다.
-    /// 해당 x,y,z값은 , MainControl isPlayerInTime에서 세터의 점프와 함께 정해진다.
+    /// 해당 x,y,z값은 , mainControl isPlayerInTime에서 세터의 점프와 함께 정해진다.
     /// </summary>
     /// <param name="tx">속공의 타점 x</param>
     /// <param name="ty">속공의 타점 y</param>
@@ -104,32 +104,32 @@ public class PlayerSetting : MonoBehaviour
         blockFollowZ = INF;
     }
     public void setBlockFollowZ(float z) {
-        Debug.Log($"z is {z}");
         if (z != NOBLOCK_Z && z != NOMOVE_Z) {
-            if (z < Z_LEFT*0.5f) z = Z_LEFT;
-            else if (z > Z_RIGHT*0.5f) z = Z_RIGHT;
+            if (z < Z_RIGHT*0.5f) z = Z_RIGHT;
+            else if (z > Z_LEFT*0.5f) z = Z_LEFT;
             else z = Z_CENTER;
+            
         }
         int rotationPlace = mainSetting.getRotation(team);
         int now_rot = getRotation();
         
         now_rot = (now_rot + rotationPlace) %4;
         if (now_rot == 1) { // RIGHT
-            PlayerSetting otherBlocker = MainControl.getPlayersByRot(getTeam(),2).GetComponent<PlayerSetting>();
+            PlayerSetting otherBlocker = mainControl.getPlayersByRot(getTeam(),2).GetComponent<PlayerSetting>();
             float otherZ = otherBlocker.getBlockFollowZ();
 
             if (otherZ == z) {
-                if (z == Z_CENTER) blockFollowZ = Z_RIGHT;
+                if (z == Z_CENTER) blockFollowZ = Z_LEFT;
                 else blockFollowZ = Z_CENTER;
             }
             else blockFollowZ = z;
         }
         else{ 
-            PlayerSetting otherBlocker = MainControl.getPlayersByRot(getTeam(),1).GetComponent<PlayerSetting>();
+            PlayerSetting otherBlocker = mainControl.getPlayersByRot(getTeam(),1).GetComponent<PlayerSetting>();
             float otherZ = otherBlocker.getBlockFollowZ();
 
             if (otherZ == z) {
-                if (z == Z_CENTER) blockFollowZ = Z_LEFT;
+                if (z == Z_CENTER) blockFollowZ = Z_RIGHT;
                 else blockFollowZ = Z_CENTER;
             }
             else blockFollowZ = z;
